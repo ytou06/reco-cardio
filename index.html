@@ -392,6 +392,10 @@ body.locked .bar, body.locked .tabbar{display:none}
         (i === 0 ? ' checked' : '') + '><span>' + o[1] + '</span>' + (o[2] !== undefined ? '<b>' + String(o[2]).replace('.', ',') + '</b>' : '') + '</label>';
     }).join('') + '</fieldset>';
   }
+  function sel(p, id, legend, opts) {
+    return '<label class="c-f" for="' + p + id + '"><span>' + legend + '</span><select id="' + p + id + '" data-k="' + id + '">' +
+      opts.map(function (o) { return '<option value="' + o[0] + '">' + o[1] + '</option>'; }).join('') + '</select></label>';
+  }
   function sub(t) { return '<p class="c-sub">' + t + '</p>'; }
   function vals(root) {
     var v = {};
@@ -844,6 +848,164 @@ body.locked .bar, body.locked .tabbar{display:none}
     }
   };
 
+  C.qtc = {
+    title: 'QT corrigé',
+    form: function (p) {
+      return '<div class="c-grid">' + num(p, 'qt', 'QT mesuré', 'ms', 'min="200" max="800"') +
+        num(p, 'fc', 'Fréquence cardiaque', 'par min', 'min="20" max="250"') + '</div>' +
+        radio(p, 'sexe', 'Sexe', [['h', 'Homme'], ['f', 'Femme']]);
+    },
+    calc: function (v) {
+      var qt = n(v.qt), fc = n(v.fc);
+      if (!qt || !fc) return out('', '—', 'Saisissez le QT (en D2 ou V5, méthode de la tangente) et la fréquence cardiaque.');
+      var rr = 60 / fc;
+      var baz = qt / Math.sqrt(rr), fri = qt / Math.cbrt(rr), fra = qt + 154 * (1 - rr), hod = qt + 1.75 * (fc - 60);
+      var lim = v.sexe === 'f' ? 460 : 450, lvl, msg;
+      if (baz >= 500) { lvl = 'hi'; msg = 'QT corrigé ≥ 500 ms : diagnostique de QT long si répété et sans cause acquise ; haut risque de torsade.'; }
+      else if (baz >= 480) { lvl = 'hi'; msg = 'QT corrigé ≥ 480 ms : diagnostique selon les recommandations européennes 2022 si répété, sans cause acquise.'; }
+      else if (baz >= lim) { lvl = 'mid'; msg = 'QT corrigé limite : refaire l’électrocardiogramme, test debout, épreuve d’effort (4e minute de récupération).'; }
+      else { lvl = 'lo'; msg = 'QT corrigé dans les limites habituelles (seuil ' + lim + ' ms). Un QT normal n’élimine pas un porteur de variant.'; }
+      var t = '<table class="c-t"><tr><td>Bazett</td><td>' + fmt(baz) + ' ms</td></tr><tr><td>Fridericia</td><td>' + fmt(fri) +
+        ' ms</td></tr><tr><td>Framingham</td><td>' + fmt(fra) + ' ms</td></tr><tr><td>Hodges</td><td>' + fmt(hod) + ' ms</td></tr></table>';
+      var note = (fc < 50 || fc > 100) ? '<p class="c-n">Fréquence extrême : Bazett se trompe (sous-correction en bradycardie, surcorrection en tachycardie). Préférer Fridericia.</p>' : '';
+      return out(lvl, fmt(baz) + ' ms <small>(Bazett)</small>', msg) + t + note;
+    }
+  };
+
+  C.schwartz = {
+    title: 'Score de Schwartz (probabilité de QT long)',
+    form: function (p) {
+      return radio(p, 'qtc', 'QT corrigé (Bazett), au repos', [['0', 'Moins de 450 ms (ou 450–459 chez la femme)', 0], ['1', '450–459 ms chez l’homme', 1], ['2', '460–479 ms', 2], ['3', '≥ 480 ms', 3]]) +
+        '<div class="c-list">' + chk(p, 'recup', 'QT corrigé ≥ 480 ms à la 4e minute de récupération d’effort', 1) +
+        chk(p, 'tdp', 'Torsade de pointes documentée', 2) + chk(p, 'alt', 'Alternance de l’onde T', 1) +
+        chk(p, 'notch', 'Onde T crochetée dans 3 dérivations', 1) + chk(p, 'brady', 'Fréquence cardiaque basse pour l’âge', 0.5) + '</div>' +
+        radio(p, 'syn', 'Syncope', [['0', 'Aucune', 0], ['2', 'Au stress (effort, émotion)', 2], ['1', 'Sans stress', 1]]) +
+        '<div class="c-list">' + chk(p, 'surd', 'Surdité congénitale', 0.5) + chk(p, 'fam', 'Apparenté avec QT long certain', 1) +
+        chk(p, 'msj', 'Mort subite inexpliquée avant 30 ans chez un apparenté proche', 0.5) + '</div>';
+    },
+    calc: function (v) {
+      var s = (+v.qtc || 0) + (v.recup ? 1 : 0) + (v.tdp ? 2 : 0) + (v.alt ? 1 : 0) + (v.notch ? 1 : 0) + (v.brady ? 0.5 : 0) +
+        (v.tdp ? 0 : (+v.syn || 0)) + (v.surd ? 0.5 : 0) + (v.fam ? 1 : 0) + (v.msj ? 0.5 : 0);
+      var lvl = s >= 3.5 ? 'hi' : s >= 1.5 ? 'mid' : 'lo';
+      var txt = s >= 3.5 ? 'Probabilité élevée de QT long (score > 3 = diagnostic selon les recommandations européennes 2022, en l’absence de cause acquise).'
+        : s >= 1.5 ? 'Probabilité intermédiaire : répéter les électrocardiogrammes, test debout, épreuve d’effort, Holter ; avis en centre de compétence.'
+          : 'Probabilité faible.';
+      var n2 = v.tdp && +v.syn ? '<p class="c-n">Torsade et syncope ne se cumulent pas : seule la torsade est comptée.</p>' : '';
+      var n3 = v.fam && v.msj ? '<p class="c-n">Un même apparenté ne doit pas être compté deux fois.</p>' : '';
+      return out(lvl, fmt(s, s % 1 ? 1 : 0) + ' <small>points</small>', txt) + n2 + n3;
+    }
+  };
+
+  C.hcmrisk = {
+    title: 'HCM Risk-SCD (risque de mort subite à 5 ans)',
+    form: function (p) {
+      return '<div class="c-grid">' + num(p, 'age', 'Âge', 'ans', 'min="16" max="100"') +
+        num(p, 'mwt', 'Épaisseur pariétale maximale', 'mm', 'min="10" max="40"') +
+        num(p, 'la', 'Diamètre de l’oreillette gauche (parasternal)', 'mm', 'min="20" max="80"') +
+        num(p, 'grad', 'Gradient maximal de chambre de chasse (repos ou Valsalva)', 'mmHg', 'min="0" max="200"') + '</div>' +
+        '<div class="c-list">' + chk(p, 'fh', 'Antécédent familial de mort subite') + chk(p, 'nsvt', 'Tachycardie ventriculaire non soutenue') +
+        chk(p, 'syn', 'Syncope inexpliquée') + '</div>';
+    },
+    calc: function (v) {
+      var age = n(v.age), mwt = n(v.mwt), la = n(v.la), g = n(v.grad);
+      if (age === null || mwt === null || la === null || g === null) return out('', '—', 'Renseignez l’âge, l’épaisseur maximale, l’oreillette gauche et le gradient.');
+      var pi = 0.15939858 * mwt - 0.00294271 * mwt * mwt + 0.0259082 * la + 0.00446131 * g +
+        0.4583082 * (v.fh ? 1 : 0) + 0.82639195 * (v.nsvt ? 1 : 0) + 0.71650361 * (v.syn ? 1 : 0) - 0.01799934 * age;
+      var r = (1 - Math.pow(0.998, Math.exp(pi))) * 100;
+      var lvl = r >= 6 ? 'hi' : r >= 4 ? 'mid' : 'lo';
+      var txt = r >= 6 ? 'Risque élevé : défibrillateur automatique implantable à considérer (classe IIa).'
+        : r >= 4 ? 'Risque intermédiaire : défibrillateur à discuter (classe IIb), en tenant compte des facteurs additionnels.'
+          : 'Risque faible : défibrillateur non indiqué en règle, sauf facteurs additionnels importants.';
+      var warn = [];
+      if (age < 16) warn.push('score non validé avant 16 ans (utiliser HCM Risk-Kids)');
+      if (mwt > 35) warn.push('épaisseur > 35 mm hors du domaine de validation');
+      var extra = '<p class="c-n">À intégrer en plus (recommandations européennes 2023) : rehaussement tardif ≥ 15 % de la masse, fraction d’éjection &lt; 50 %, anévrysme apical, variant sarcomérique. Les patients après myectomie ou alcoolisation, ou avec phénocopie, sont hors champ.</p>';
+      return out(lvl, fmt(r, 1) + ' % <small>à 5 ans</small>', txt) + (warn.length ? '<p class="c-n warn">Attention : ' + warn.join(' ; ') + '.</p>' : '') + extra;
+    }
+  };
+
+  C.taskforce = {
+    title: 'Critères Task Force 2010 (cardiomyopathie ventriculaire droite arythmogène)',
+    form: function (p) {
+      var o = [['0', 'Aucun'], ['1', 'Mineur'], ['2', 'Majeur']];
+      return '<p class="c-n">Un seul critère par catégorie (le plus élevé). Voir le tableau de la fiche pour les définitions.</p><div class="c-grid">' +
+        sel(p, 'str', 'Structure (échographie, imagerie par résonance magnétique, angiographie)', o) +
+        sel(p, 'his', 'Histologie (biopsie)', o) + sel(p, 'rep', 'Repolarisation', o) + sel(p, 'dep', 'Dépolarisation', o) +
+        sel(p, 'ary', 'Arythmies', o) + sel(p, 'fam', 'Famille et génétique', o) + '</div>';
+    },
+    calc: function (v) {
+      var maj = 0, min = 0;
+      ['str', 'his', 'rep', 'dep', 'ary', 'fam'].forEach(function (k) { if (v[k] === '2') maj++; else if (v[k] === '1') min++; });
+      var r;
+      if (maj >= 2 || (maj >= 1 && min >= 2) || min >= 4) r = ['hi', 'Diagnostic certain'];
+      else if ((maj === 1 && min === 1) || min === 3) r = ['mid', 'Diagnostic limite (« borderline »)'];
+      else if (maj === 1 || min === 2) r = ['mid', 'Diagnostic possible'];
+      else r = ['lo', 'Critères non remplis'];
+      return out(r[0], r[1], maj + ' majeur' + (maj > 1 ? 's' : '') + ', ' + min + ' mineur' + (min > 1 ? 's' : '') +
+        '. Certain : 2 majeurs, ou 1 majeur + 2 mineurs, ou 4 mineurs. Limite : 1 majeur + 1 mineur, ou 3 mineurs. Possible : 1 majeur ou 2 mineurs.');
+    }
+  };
+
+  C.shanghai = {
+    title: 'Score de Shanghai (syndrome de Brugada)',
+    form: function (p) {
+      return radio(p, 'ecg', 'Électrocardiogramme (au moins un critère requis)', [['0', 'Aucun aspect de type 1', 0], ['3.5', 'Type 1 spontané (position standard ou haute)', 3.5], ['3', 'Type 1 induit par la fièvre', 3], ['2', 'Type 2 ou 3 converti en type 1 par test pharmacologique', 2]]) +
+        radio(p, 'cli', 'Histoire clinique', [['0', 'Aucun', 0], ['3', 'Arrêt cardiaque inexpliqué ou fibrillation ventriculaire / tachycardie polymorphe documentée', 3], ['2', 'Respiration agonique nocturne', 2], ['2b', 'Syncope suspecte d’être arythmique', 2], ['1', 'Syncope de mécanisme incertain', 1], ['0.5', 'Flutter ou fibrillation atriale avant 30 ans sans autre cause', 0.5]]) +
+        radio(p, 'fam', 'Histoire familiale', [['0', 'Aucun', 0], ['2', 'Brugada certain chez un apparenté du 1er ou 2e degré', 2], ['1', 'Mort subite suspecte (fièvre, nuit, médicament à risque) chez un apparenté du 1er ou 2e degré', 1], ['0.5', 'Mort subite inexpliquée avant 45 ans, autopsie négative, apparenté du 1er ou 2e degré', 0.5]]) +
+        '<div class="c-list">' + chk(p, 'gen', 'Variant probablement pathogène dans un gène de susceptibilité', 0.5) + '</div>';
+    },
+    calc: function (v) {
+      var e = parseFloat(v.ecg) || 0, c = parseFloat(v.cli) || 0, f = parseFloat(v.fam) || 0, g = v.gen ? 0.5 : 0;
+      if (!e) return out('lo', '—', 'Le score exige au moins un critère électrocardiographique de type 1.');
+      var s = e + c + f + g;
+      var r = s >= 3.5 ? ['hi', 'Brugada probable ou certain'] : s >= 2 ? ['mid', 'Brugada possible'] : ['lo', 'Non diagnostique'];
+      return out(r[0], fmt(s, s % 1 ? 1 : 0) + ' <small>points</small>', r[1] + '. Seuils : ≥ 3,5 probable ou certain ; 2–3 possible ; &lt; 2 non diagnostique.');
+    }
+  };
+
+  C.amylose = {
+    title: 'Stades pronostiques des amyloses',
+    form: function (p) {
+      return radio(p, 'type', 'Type d’amylose', [['al', 'AL (chaînes légères)'], ['attr', 'ATTR (transthyrétine)']]) +
+        '<div class="c-grid">' + num(p, 'bnp', 'NT-proBNP', 'ng/L') + num(p, 'tnt', 'Troponine T', 'ng/L') +
+        num(p, 'dflc', 'Différence entre chaînes légères impliquée et non impliquée', 'mg/L') + num(p, 'dfg', 'Débit de filtration glomérulaire', 'mL/min/1,73 m²') + '</div>';
+    },
+    calc: function (v) {
+      var bnp = n(v.bnp);
+      if (v.type === 'attr') {
+        var dfg = n(v.dfg);
+        if (bnp === null || dfg === null) return out('', '—', 'Amylose ATTR : renseignez NT-proBNP et débit de filtration glomérulaire.');
+        var hi = (bnp > 3000 ? 1 : 0) + (dfg < 45 ? 1 : 0);
+        var st = ['I', 'II', 'III'][hi], surv = ['≈ 69 mois', '≈ 47 mois', '≈ 24 mois'][hi];
+        return out(['lo', 'mid', 'hi'][hi], 'Stade ' + st, 'Stade du National Amyloidosis Centre (Gillmore 2018). Survie médiane historique ' + surv + ', avant les traitements actuels.');
+      }
+      var tnt = n(v.tnt), dflc = n(v.dflc);
+      if (bnp === null || tnt === null || dflc === null) return out('', '—', 'Amylose AL : renseignez NT-proBNP, troponine T et différence entre chaînes légères.');
+      var pts = (bnp >= 1800 ? 1 : 0) + (tnt >= 25 ? 1 : 0) + (dflc >= 180 ? 1 : 0);
+      var st2 = ['I', 'II', 'III', 'IV'][pts];
+      var b = bnp > 8500 ? '<p class="c-n warn">NT-proBNP &gt; 8 500 ng/L : forme très avancée (stade IIIb de la classification européenne), pronostic de quelques mois.</p>' : '';
+      return out(['lo', 'mid', 'hi', 'hi'][pts], 'Stade ' + st2, 'Classification révisée de la Mayo Clinic 2012 (seuils : NT-proBNP ≥ 1 800 ng/L, troponine T ≥ 25 ng/L, différence de chaînes légères ≥ 180 mg/L). Seuils établis avec la troponine T conventionnelle.') + b;
+    }
+  };
+
+  C.carpreg = {
+    title: 'Score CARPREG II (risque cardiaque maternel)',
+    form: function (p) {
+      return '<div class="c-list">' + chk(p, 'a', 'Événement cardiaque ou arythmie avant la grossesse', 3) +
+        chk(p, 'b', 'Dyspnée de classe III–IV ou cyanose au début de la grossesse', 3) + chk(p, 'c', 'Valve mécanique', 3) +
+        chk(p, 'd', 'Dysfonction ventriculaire', 2) + chk(p, 'e', 'Valvulopathie gauche à haut risque ou obstacle à l’éjection ventriculaire gauche', 2) +
+        chk(p, 'f', 'Hypertension pulmonaire', 2) + chk(p, 'g', 'Maladie coronaire', 2) + chk(p, 'h', 'Aortopathie à haut risque', 2) +
+        chk(p, 'i', 'Aucune intervention cardiaque antérieure', 1) + chk(p, 'j', 'Première évaluation après 20 semaines de grossesse', 1) + '</div>';
+    },
+    calc: function (v) {
+      var w = { a: 3, b: 3, c: 3, d: 2, e: 2, f: 2, g: 2, h: 2, i: 1, j: 1 }, s = 0;
+      Object.keys(w).forEach(function (k) { if (v[k]) s += w[k]; });
+      var risk = s <= 1 ? 5 : s === 2 ? 10 : s === 3 ? 15 : s === 4 ? 22 : 41;
+      return out(s <= 1 ? 'lo' : s <= 3 ? 'mid' : 'hi', s + ' <small>points</small>', 'Risque d’événement cardiaque maternel pendant la grossesse ≈ ' + risk + ' % (Silversides 2018).');
+    }
+  };
+
+
   function mount(el) {
     var c = C[el.dataset.calc];
     if (!c || el.dataset.ready) return;
@@ -893,6 +1055,8 @@ window.initApp = function (D) {
     ['Insuffisance cardiaque et péricarde', ['h2fpef', 'scai', 'peri-doses']],
     ['Valves et endocardite', ['surface-ao', 'inr-valve', 'duke-esc']],
     ['Embolie pulmonaire', ['geneve', 'wells', 'pesi', 'ep-risque']],
+    ['Rythmologie héréditaire et cardiomyopathies', ['qtc', 'schwartz', 'shanghai', 'hcmrisk', 'taskforce', 'amylose']],
+    ['Grossesse', ['carpreg']],
     ['Rein', ['cockcroft']]
   ];
   var CLS = { I: 'Classe I : recommandé, indiqué', IIa: 'Classe IIa : doit être envisagé', IIb: 'Classe IIb : peut être envisagé', III: 'Classe III : non recommandé (inutile ou dangereux)' };

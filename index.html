@@ -1,0 +1,1269 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F5F6F8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E141A" media="(prefers-color-scheme: dark)">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Recos Cardio">
+<title>Recos Cardio</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px)} body{margin:0} [hidden]{display:none!important}
+/* Mise en page : barre du haut collante, une colonne de lecture (≤ 720 px),
+   onglets de chapitres collants, barre d’onglets fixe en bas (Recos · Entraînement · Recherche · Outils). */
+:root{
+  --paper:#F5F6F8; --sheet:#FFFFFF; --ink:#141D26; --muted:#5A6774; --line:#E0E4E9; --soft:#ECEFF3;
+  --accent:#0F5E8C; --accent-bg:#E6F0F6;
+  --d-ic:#B71C3A; --d-ry:#3446B0; --d-co:#A4511A; --d-va:#0D7470; --d-pr:#3C7A2A; --d-vx:#7A3E9A; --d-sp:#4A6378;
+  --d-ic-bg:#FBEDF0; --d-ry-bg:#EDEFFB; --d-co-bg:#FAEFE6; --d-va-bg:#E6F4F3; --d-pr-bg:#EDF5E9; --d-vx-bg:#F4ECF8; --d-sp-bg:#EBF0F4;
+  --cI:#1E7B3C; --cIIa:#9A7400; --cIIb:#C0580A; --cIII:#B3261E;
+  --cI-bg:#E5F3E9; --cIIa-bg:#FBF3D9; --cIIb-bg:#FCEBDD; --cIII-bg:#FBE6E4;
+  --warn:#9A3B00; --warn-bg:#FFF3EA; --upd:#2F5D2F; --upd-bg:#EDF6EB; --prat:#0F5E8C; --prat-bg:#E6F0F6;
+  --good:#1E7B3C; --good-bg:#E5F3E9; --bad:#B3261E; --bad-bg:#FBE6E4; --miss:#9A7400; --miss-bg:#FBF3D9;
+  --display:"Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --fs:16px; --bar:52px; --tabs:46px; --nav:62px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#0E141A; --sheet:#151D25; --ink:#E6EBF0; --muted:#9AA7B3; --line:#25303B; --soft:#1B252F;
+  --accent:#5DB3E6; --accent-bg:#122636;
+  --d-ic:#F0607A; --d-ry:#8C9BFF; --d-co:#F09A5A; --d-va:#3FC2BA; --d-pr:#8BCB72; --d-vx:#C88BE6; --d-sp:#9FB6C8;
+  --d-ic-bg:#2A161C; --d-ry-bg:#191D36; --d-co-bg:#2B1D12; --d-va-bg:#10292A; --d-pr-bg:#15241A; --d-vx-bg:#24182B; --d-sp-bg:#18212A;
+  --cI:#6CCB8A; --cIIa:#E8C24A; --cIIb:#F29A5A; --cIII:#F27A70;
+  --cI-bg:#132A1C; --cIIa-bg:#2A2410; --cIIb-bg:#2C1C10; --cIII-bg:#2E1513;
+  --warn:#FFB07A; --warn-bg:#2A1C12; --upd:#9AD49A; --upd-bg:#14241A; --prat:#5DB3E6; --prat-bg:#122636;
+  --good:#6CCB8A; --good-bg:#132A1C; --bad:#F27A70; --bad-bg:#2E1513; --miss:#E8C24A; --miss-bg:#2A2410;
+  color-scheme:dark;
+}}
+html[data-size="1"]{--fs:17.5px} html[data-size="2"]{--fs:19px}
+*{box-sizing:border-box}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important; animation:none!important} }
+body{background:var(--paper); color:var(--ink); font-family:var(--body); font-size:var(--fs); line-height:1.6;
+  -webkit-text-size-adjust:100%; padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom,0px) + 24px)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+button{font:inherit; color:inherit}
+.col{max-width:720px; margin-inline:auto; padding-inline:16px}
+b,strong{font-weight:600}
+
+/* ---------- barre du haut ---------- */
+.bar{position:sticky; top:env(safe-area-inset-top,0px); z-index:30; height:var(--bar);
+  background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:saturate(1.4) blur(12px);
+  -webkit-backdrop-filter:saturate(1.4) blur(12px); border-bottom:1px solid var(--line)}
+.bar .col{height:100%; display:flex; align-items:center; gap:8px}
+.brand{font-family:var(--display); font-size:1.4rem; text-decoration:none; white-space:nowrap}
+.brand i{color:var(--accent)}
+.bar-title{flex:1; min-width:0; font-weight:600; font-size:.98rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.iconbtn{display:inline-flex; align-items:center; justify-content:center; min-width:40px; height:40px; padding:0 8px;
+  border:0; background:none; border-radius:10px; cursor:pointer; color:var(--accent); text-decoration:none; font-weight:500}
+.iconbtn:hover{background:var(--soft)}
+.iconbtn svg{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
+.sizebtn{margin-left:auto; color:var(--muted); font-family:var(--display); font-size:1.25rem}
+
+/* ---------- barre d’onglets du bas ---------- */
+.tabbar{position:fixed; left:0; right:0; bottom:0; z-index:40; display:grid; grid-template-columns:repeat(4,1fr);
+  background:color-mix(in srgb, var(--sheet) 94%, transparent); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border-top:1px solid var(--line); padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabbar a{display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 2px; text-decoration:none; color:var(--muted);
+  font-size:.7rem; font-weight:500; border-radius:10px; position:relative}
+.tabbar a[aria-current="page"]{color:var(--accent)}
+.tabbar svg{width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.tabbar .dot{position:absolute; top:3px; left:calc(50% + 8px); min-width:16px; height:16px; padding:0 4px; border-radius:8px; background:var(--d-ic); color:#fff; font-size:.62rem; line-height:16px; text-align:center}
+
+/* ---------- listes ---------- */
+.head{padding-block:22px 6px}
+.head h1{font-family:var(--display); font-weight:400; font-size:2.3rem; line-height:1.05; margin:0; text-wrap:balance}
+.head p{margin:.5rem 0 0; color:var(--muted); font-size:.95rem}
+.card-link{display:flex; align-items:center; gap:12px; margin-top:12px; padding:12px 14px; border-radius:14px; background:var(--sheet);
+  border:1px solid var(--line); text-decoration:none}
+.card-link small{display:block; color:var(--muted); font-size:.8rem}
+.card-link strong{display:block; font-weight:600; line-height:1.3}
+.card-link .go{margin-left:auto; color:var(--accent); font-size:1.2rem}
+.card-link.due{background:var(--accent-bg); border-color:transparent}
+.card-link.due strong{color:var(--accent)}
+.chips{display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; margin-inline:-16px; padding:14px 16px 4px}
+.chips::-webkit-scrollbar{display:none}
+.chips.wrap{flex-wrap:wrap; overflow:visible; margin-inline:0; padding:6px 0 0}
+.chip{flex:0 0 auto; border:1px solid var(--line); background:var(--sheet); color:var(--ink); border-radius:999px; padding:.42rem .85rem;
+  font-size:.86rem; cursor:pointer; white-space:nowrap; text-decoration:none}
+.chip[aria-pressed="true"]{background:var(--ink); color:var(--sheet); border-color:var(--ink)}
+.chip small{opacity:.7; margin-left:4px}
+.group h2, .sect{font-family:var(--display); font-weight:400; font-size:1.45rem; margin:22px 0 8px; display:flex; align-items:center; gap:10px}
+.group h2::before{content:""; width:10px; height:10px; border-radius:50%; background:var(--gc)}
+.rows{list-style:none; margin:0; padding:0; background:var(--sheet); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+.rows li + li{border-top:1px solid var(--line)}
+.row{display:grid; grid-template-columns:4px minmax(0,1fr) auto; gap:12px; align-items:center; padding:12px 14px 12px 0; text-decoration:none}
+.row::before{content:""; align-self:stretch; background:var(--gc, var(--accent)); border-radius:0 3px 3px 0}
+.row strong{display:block; font-weight:600; line-height:1.3}
+.row .sub{display:block; color:var(--muted); font-size:.84rem; line-height:1.4; margin-top:2px}
+.row .chev{color:var(--muted); font-size:1.2rem}
+.row:active{background:var(--soft)}
+.row.soon{opacity:.55}
+.row.soon::before{background:var(--line)}
+.row .yr{font:500 .8rem var(--mono); color:var(--muted)}
+.prog{height:4px; border-radius:2px; background:var(--soft); overflow:hidden; margin-top:6px}
+.prog i{display:block; height:100%; background:var(--gc, var(--accent)); border-radius:2px}
+.note{color:var(--muted); font-size:.82rem; margin-top:28px; line-height:1.5}
+.textbtn{border:0; background:none; color:var(--accent); padding:8px 0; cursor:pointer; font-size:.9rem}
+
+/* ---------- lecture d’une recommandation ---------- */
+.d-top{padding-block:18px 8px}
+.d-eye{font-size:.84rem; color:var(--fc); font-weight:600}
+.d-top h2{font-family:var(--display); font-weight:400; font-size:clamp(1.9rem, 7vw, 2.5rem); line-height:1.08; margin:.15rem 0 .35rem; text-wrap:balance}
+.d-meta{font-size:.82rem; color:var(--muted); margin:0}
+.d-meta a{color:var(--fc)}
+.d-tools{display:flex; gap:8px; flex-wrap:wrap; padding-top:10px}
+.d-tools .chip{font-size:.82rem; padding:.36rem .75rem}
+.ptabs{position:sticky; top:calc(env(safe-area-inset-top,0px) + var(--bar)); z-index:20; background:color-mix(in srgb, var(--paper) 94%, transparent);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid var(--line)}
+.ptabs .col{display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; height:var(--tabs); align-items:stretch}
+.ptabs .col::-webkit-scrollbar{display:none}
+.ptab{flex:0 0 auto; border:0; background:none; padding:0 12px; font-size:.92rem; color:var(--muted); cursor:pointer; position:relative; white-space:nowrap}
+.ptab[aria-selected="true"]{color:var(--ink); font-weight:600}
+.ptab[aria-selected="true"]::after{content:""; position:absolute; left:10px; right:10px; bottom:-1px; height:3px; border-radius:3px 3px 0 0; background:var(--fc)}
+.pane{padding-block:20px 8px; animation:paneIn .18s ease-out}
+@keyframes paneIn{from{opacity:.4; transform:translateY(4px)} to{opacity:1; transform:none}}
+.pane > * + *{margin-top:14px}
+.pane h3{font-family:var(--display); font-weight:400; font-size:1.5rem; line-height:1.15; margin:26px 0 0; text-wrap:balance}
+.pane > h3:first-child{margin-top:0}
+.pane h4{font-size:.95rem; font-weight:600; margin:18px 0 0; color:var(--fc)}
+.pane p{margin:0}
+.pane ul, .pane ol{margin:0; padding-left:1.2rem; display:grid; gap:.45rem}
+.pane li::marker{color:var(--fc)}
+.num{font-family:var(--mono); font-size:.9em; white-space:nowrap; background:var(--fcb, var(--soft)); padding:0 .3em; border-radius:4px}
+.s30{background:var(--fcb); border-radius:14px; padding:16px 18px}
+.s30 h3, .box h3, .blk-algo h3{margin:0 0 .5rem!important; font-family:var(--display); font-weight:400; font-size:1.3rem}
+.s30 h3{color:var(--fc)}
+.s30 ul, .box ul{margin:0; padding-left:1.15rem; display:grid; gap:.5rem}
+.s30 > * + *, .box > * + *{margin-top:.5rem}
+.box{border-radius:14px; padding:16px 18px}
+.box.warn{background:var(--warn-bg)} .box.warn h3{color:var(--warn)}
+.box.upd{background:var(--upd-bg)} .box.upd h3{color:var(--upd)}
+.box.prat{background:var(--prat-bg)} .box.prat h3{color:var(--prat)}
+.flow{display:grid; gap:8px}
+.flow .st{background:var(--sheet); border:1px solid var(--line); border-left:4px solid var(--fc); border-radius:10px; padding:10px 12px; font-size:.95rem}
+.flow .st b{display:block; color:var(--fc); font-size:.9rem}
+.tbl{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--sheet)}
+table{border-collapse:collapse; width:100%; font-size:.88rem}
+.tbl table{min-width:440px}
+th,td{text-align:left; padding:.55rem .7rem; border-bottom:1px solid var(--line); vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-weight:600; font-size:.8rem; color:var(--muted); background:var(--soft)}
+details{border:1px solid var(--line); border-radius:12px; background:var(--sheet)}
+summary{cursor:pointer; list-style:none; padding:13px 44px 13px 16px; font-weight:600; position:relative; line-height:1.4}
+summary::-webkit-details-marker{display:none}
+summary::after{content:""; position:absolute; right:18px; top:19px; width:9px; height:9px; border-right:2px solid var(--fc); border-bottom:2px solid var(--fc); transform:rotate(45deg); transition:transform .15s}
+details[open] summary::after{transform:rotate(-135deg); top:23px}
+details > div{padding:0 16px 14px} details > div > * + *{margin-top:.6rem}
+.xref{display:flex; justify-content:space-between; gap:12px; align-items:center; padding:11px 14px; border-radius:12px; background:var(--sheet);
+  border:1px solid var(--line); text-decoration:none; font-size:.94rem; font-weight:500}
+.xref::after{content:"→"; color:var(--fc)}
+.xref.ext::after{content:"↗"}
+.pane a:not(.xref):not(.chip){color:var(--fc)}
+
+/* recommandations et classes */
+.recos{display:grid; gap:6px}
+.reco{display:grid; grid-template-columns:48px minmax(0,1fr); gap:12px; align-items:start; padding:10px 12px 10px 10px; border-radius:12px;
+  background:var(--sheet); border:1px solid var(--line); border-left:4px solid var(--cc)}
+.reco p{margin:0; line-height:1.5}
+.reco .cls{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; width:48px; min-height:44px; border:0; border-radius:9px;
+  background:var(--ccb); color:var(--cc); font:600 1rem/1.05 var(--mono); cursor:pointer; padding:4px 0}
+.reco .cls small{font:500 .72rem var(--mono); opacity:.85}
+.c-I{--cc:var(--cI); --ccb:var(--cI-bg)} .c-IIa{--cc:var(--cIIa); --ccb:var(--cIIa-bg)}
+.c-IIb{--cc:var(--cIIb); --ccb:var(--cIIb-bg)} .c-III{--cc:var(--cIII); --ccb:var(--cIII-bg)}
+.revise .reco:not(.show){border-left-color:var(--line)}
+.revise .reco:not(.show) .cls{background:var(--soft); color:transparent; position:relative}
+.revise .reco:not(.show) .cls small{color:transparent}
+.revise .reco:not(.show) .cls::after{content:"?"; position:absolute; inset:0; display:grid; place-items:center; color:var(--muted); font:500 1.2rem var(--display)}
+.only13 .reco.c-IIa, .only13 .reco.c-IIb{display:none}
+.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%,40%{box-shadow:0 0 0 3px var(--fc)} 100%{box-shadow:0 0 0 0 transparent}}
+.legend{display:flex; flex-wrap:wrap; gap:6px; font-size:.78rem; color:var(--muted)}
+.legend span{display:inline-flex; align-items:center; gap:5px}
+.legend i{width:10px; height:10px; border-radius:3px; background:var(--cc)}
+.train-cta{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px; border-radius:14px; background:var(--fcb); text-decoration:none; font-weight:600; color:var(--fc); border:0; width:100%; cursor:pointer; text-align:left}
+.pager{display:grid; grid-template-columns:1fr 1fr; gap:10px; padding-block:18px 6px}
+.pager a{display:flex; flex-direction:column; gap:2px; padding:12px 14px; border-radius:12px; background:var(--sheet); border:1px solid var(--line);
+  text-decoration:none; min-height:62px; justify-content:center}
+.pager a small{color:var(--muted); font-size:.78rem}
+.pager a strong{font-weight:600; color:var(--fc); line-height:1.3}
+.pager .next{text-align:right; grid-column:2}
+.toast{position:fixed; left:12px; right:12px; bottom:calc(var(--nav) + env(safe-area-inset-bottom,0px) + 12px); z-index:60; max-width:520px; margin-inline:auto;
+  background:var(--ink); color:var(--sheet); padding:12px 14px; border-radius:12px; font-size:.9rem; line-height:1.45; box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
+.toast b{display:block}
+
+/* ---------- recherche ---------- */
+.s-field{display:flex; align-items:center; gap:8px; background:var(--sheet); border:1px solid var(--line); border-radius:14px; padding:0 12px; margin-top:16px}
+.s-field svg{width:20px; height:20px; fill:none; stroke:var(--muted); stroke-width:2; stroke-linecap:round}
+.s-field input{flex:1; min-width:0; border:0; background:none; color:var(--ink); font:inherit; padding:13px 0; outline:none}
+.s-count{color:var(--muted); font-size:.85rem; margin:12px 0 8px}
+.hits{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.hitcard{background:var(--sheet); border:1px solid var(--line); border-left:4px solid var(--fc); border-radius:12px; padding:12px 14px 6px}
+.hit-t{display:block; font-weight:600; line-height:1.3; margin-bottom:4px}
+.hit{display:block; padding:8px 0; text-decoration:none; border-top:1px solid var(--line)}
+.hit small{color:var(--fc); font-size:.8rem; font-weight:600}
+.hit p{margin:4px 0 0; font-size:.88rem; color:var(--muted); line-height:1.45}
+.hit mark{background:var(--warn-bg); color:var(--ink); border-radius:3px; padding:0 2px}
+.hit-more{display:block; font-size:.8rem; color:var(--muted); padding:4px 0 8px}
+
+/* ---------- entraînement ---------- */
+.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:14px}
+.stat{background:var(--sheet); border:1px solid var(--line); border-radius:12px; padding:10px 8px; text-align:center}
+.stat strong{display:block; font:500 1.35rem/1.2 var(--mono)}
+.stat span{font-size:.72rem; color:var(--muted); line-height:1.2; display:block}
+.builder{background:var(--sheet); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-top:16px; display:grid; gap:14px}
+.builder h3{margin:0; font-size:.86rem; color:var(--muted); font-weight:600}
+.builder .chips{padding-top:6px}
+.bigbtn{display:block; width:100%; border:0; border-radius:12px; padding:.9rem; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; font-size:1rem}
+.bigbtn[disabled]{opacity:.45; cursor:default}
+.bigbtn.ghost{background:var(--soft); color:var(--ink)}
+.q-prog{display:flex; align-items:center; gap:10px; padding-top:14px; font-size:.85rem; color:var(--muted)}
+.q-prog .prog{flex:1; margin:0}
+.q-prog button{border:0; background:none; color:var(--accent); cursor:pointer; font-size:.85rem; padding:6px 0}
+.q-card{margin-top:12px}
+.q-meta{display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; font-size:.8rem; color:var(--muted)}
+.kb{display:inline-block; padding:.12rem .5rem; border-radius:6px; font-weight:600; font-size:.74rem; background:var(--accent-bg); color:var(--accent)}
+.kb.dp{background:var(--d-vx-bg); color:var(--d-vx)} .kb.kfp{background:var(--d-co-bg); color:var(--d-co)}
+.q-title{font-family:var(--display); font-weight:400; font-size:1.6rem; line-height:1.15; margin:.35rem 0 .2rem; text-wrap:balance}
+.q-vig{background:var(--sheet); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-top:10px}
+.q-vig p{margin:0} .q-vig > * + *{margin-top:.5rem}
+.q-step{border-left:3px solid var(--accent); padding:4px 0 4px 12px; margin-top:18px}
+.q-step b{display:block; font-size:.78rem; color:var(--accent); text-transform:uppercase; letter-spacing:.04em}
+.q-step p{margin:.2rem 0 0}
+.qq{margin-top:16px}
+.qq-h{font-size:.78rem; color:var(--muted); font-weight:600; margin:0}
+.qq-q{font-weight:600; margin:.2rem 0 .6rem; line-height:1.45}
+.opts{list-style:none; margin:0; padding:0; display:grid; gap:6px}
+.opt{display:flex; gap:.7rem; align-items:flex-start; padding:.7rem .8rem; border-radius:11px; background:var(--sheet); border:1px solid var(--line); cursor:pointer; line-height:1.4}
+.opt input{margin-top:.2rem; width:1.15rem; height:1.15rem; accent-color:var(--accent); flex:0 0 auto}
+.opt:has(input:checked){border-color:var(--accent); background:var(--accent-bg)}
+.opt .ot{flex:1; min-width:0}
+.opt .why{display:block; font-size:.86rem; color:var(--muted); margin-top:.3rem}
+.opt .tag{display:inline-block; font-size:.7rem; font-weight:700; padding:.05rem .4rem; border-radius:5px; margin-right:6px; vertical-align:1px}
+.done .opt{cursor:default}
+.opt.good{border-color:var(--good); background:var(--good-bg)}
+.opt.bad{border-color:var(--bad); background:var(--bad-bg)}
+.opt.miss{border-color:var(--miss); background:var(--miss-bg)}
+.opt.good .tag{background:var(--good); color:var(--sheet)} .opt.bad .tag{background:var(--bad); color:var(--sheet)} .opt.miss .tag{background:var(--miss); color:var(--sheet)}
+.opt.neutral{opacity:.75}
+.kill{color:var(--bad); font-weight:600}
+.qq-sc{display:flex; align-items:baseline; gap:8px; margin-top:10px; font-size:.9rem}
+.qq-sc strong{font:500 1.1rem var(--mono)}
+.qq-e{background:var(--prat-bg); border-radius:12px; padding:12px 14px; margin-top:8px; font-size:.94rem}
+.qq-e b{color:var(--prat)}
+.q-actions{position:sticky; bottom:calc(var(--nav) + env(safe-area-inset-bottom,0px) + 8px); padding-top:14px; z-index:5}
+.q-actions .bigbtn{box-shadow:0 10px 24px -12px rgba(0,0,0,.5)}
+.q-hint{font-size:.82rem; color:var(--muted); margin:.4rem 0 0}
+.endsc{text-align:center; padding:24px 0 8px}
+.endsc strong{display:block; font:500 3rem/1 var(--mono); color:var(--accent)}
+.endsc span{color:var(--muted)}
+.res-list{list-style:none; margin:16px 0 0; padding:0; display:grid; gap:6px}
+.res-list li{display:grid; grid-template-columns:52px minmax(0,1fr); gap:10px; align-items:center; background:var(--sheet); border:1px solid var(--line); border-radius:12px; padding:10px 12px}
+.res-list b{font:500 .95rem var(--mono); text-align:center; border-radius:8px; padding:4px 0}
+.res-list .hi{background:var(--good-bg); color:var(--good)} .res-list .mid{background:var(--miss-bg); color:var(--miss)} .res-list .lo{background:var(--bad-bg); color:var(--bad)}
+.res-list a{font-size:.82rem; color:var(--accent)}
+
+/* ---------- calculateurs ---------- */
+.calc{border:1px solid var(--line); border-radius:14px; background:var(--sheet); padding:16px; display:grid; gap:12px}
+.c-head{font-family:var(--display); font-size:1.3rem; line-height:1.2; color:var(--fc, var(--accent))}
+.c-form{display:grid; gap:12px; margin:0}
+.c-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:12px}
+.c-f{display:grid; gap:4px; font-size:.86rem; color:var(--muted); min-width:0; align-content:end}
+.c-in{display:flex; align-items:center; border:1px solid var(--line); border-radius:10px; background:var(--paper); overflow:hidden}
+.c-in input{flex:1; min-width:0; border:0; background:transparent; color:var(--ink); font:500 1.1rem var(--mono); padding:.6rem .7rem}
+.c-in em{font-size:.8rem; color:var(--muted); padding-right:.7rem; font-style:normal; white-space:nowrap}
+.c-f select{font:inherit; font-size:.95rem; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:.55rem}
+.c-r{border:0; margin:0; padding:0; display:grid; gap:6px; min-width:0}
+.c-r legend{font-size:.86rem; color:var(--muted); margin-bottom:6px; padding:0}
+.c-r label, .c-c{display:flex; gap:.7rem; align-items:flex-start; padding:.6rem .75rem; border-radius:10px; background:var(--paper); border:1px solid var(--line); font-size:.93rem; cursor:pointer; line-height:1.4}
+.c-r label:has(input:checked), .c-c:has(input:checked){border-color:var(--fc, var(--accent)); background:var(--fcb, var(--accent-bg))}
+.c-r label span, .c-c span{flex:1}
+.c-r b, .c-c b{font:500 .85rem var(--mono); color:var(--muted)}
+.c-r input, .c-c input{margin-top:.2rem; accent-color:var(--accent); width:1.1rem; height:1.1rem; flex:0 0 auto}
+.c-list{display:grid; gap:6px}
+.calc input, .calc select{scroll-margin-bottom:200px}
+.c-more{margin-top:-4px}
+.c-sub{font-size:.8rem; font-weight:600; color:var(--muted); margin:6px 0 -4px; text-transform:uppercase; letter-spacing:.04em}
+.c-res{position:sticky; bottom:calc(var(--nav) + env(safe-area-inset-bottom,0px) + 8px); z-index:5}
+.c-out{border-radius:12px; padding:12px 14px; background:var(--soft); display:grid; gap:2px; box-shadow:0 8px 22px -12px rgba(0,0,0,.45)}
+.c-out strong{font:500 1.45rem/1.2 var(--mono)} .c-out strong small{font:400 .8rem var(--body); color:var(--muted)}
+.c-out span{font-size:.92rem; line-height:1.45}
+.c-out.lo{background:var(--upd-bg)} .c-out.lo strong{color:var(--upd)}
+.c-out.mid{background:var(--warn-bg)} .c-out.mid strong{color:var(--warn)}
+.c-out.hi{background:var(--bad-bg)} .c-out.hi strong{color:var(--bad)}
+.c-n{font-size:.84rem; color:var(--muted); margin:.5rem 0 0; line-height:1.45} .c-n.warn{color:var(--warn)}
+.c-t{width:100%; font-size:.88rem; margin-top:.5rem; background:var(--sheet); border:1px solid var(--line); border-radius:10px; border-collapse:separate; border-spacing:0; overflow:hidden}
+.c-t td{padding:.45rem .6rem; border-bottom:1px solid var(--line)} .c-t tr:last-child td{border-bottom:0}
+.c-t td:first-child{font-weight:600} .c-t td + td{font-family:var(--mono); font-size:.85rem}
+.c-link{display:inline-block; color:var(--accent); font-weight:600}
+.used{margin-top:16px}
+.used h3{font-size:.86rem; color:var(--muted); font-weight:600; margin:0 0 8px}
+.used .chips{padding-top:0}
+
+/* ---------- verrou ---------- */
+.lock{position:fixed; inset:0; z-index:100; display:grid; place-items:center; padding:24px; background:var(--paper)}
+.lock-card{width:100%; max-width:360px; display:grid; gap:12px; text-align:center}
+.lock-card img{justify-self:center; border-radius:18px}
+.lock-card h1{font-family:var(--display); font-weight:400; font-size:2rem; margin:0}
+.lock-card p{margin:0; color:var(--muted); font-size:.95rem}
+.lock-l{text-align:left; font-size:.86rem; color:var(--muted); margin-top:8px}
+.lock-card input[type=password]{font:inherit; font-size:1.05rem; padding:.8rem .9rem; border:1px solid var(--line); border-radius:12px; background:var(--sheet); color:var(--ink)}
+.lock-card button{font:inherit; font-weight:600; padding:.85rem; border:0; border-radius:12px; background:var(--accent); color:#fff; cursor:pointer}
+.lock-card button[disabled]{opacity:.6}
+.lock-err{color:var(--bad)!important}
+body.locked .bar, body.locked .tabbar{display:none}
+</style>
+</head>
+<body class="locked">
+
+<header class="bar"><div class="col">
+<a class="iconbtn" id="back" href="#accueil" aria-label="Retour"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></a>
+<a class="brand" id="brand" href="#accueil">Recos <i>Cardio</i></a>
+<span class="bar-title" id="bar-title"></span>
+<button class="iconbtn sizebtn" id="size" type="button" aria-label="Taille du texte">Aa</button>
+</div></header>
+
+<main id="app">
+<section class="view" id="v-home" hidden></section>
+<section class="view" id="v-doc" hidden></section>
+<section class="view" id="v-train" hidden></section>
+<section class="view" id="v-session" hidden></section>
+<section class="view" id="v-search" hidden></section>
+<section class="view" id="v-tools" hidden></section>
+<section class="view" id="v-calc" hidden></section>
+</main>
+
+<nav class="tabbar" aria-label="Navigation principale">
+<a href="#accueil" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6.5 4 9.5 4 12 5.5v14c-2.5-1.5-5.5-1.5-8 0z"/><path d="M20 5.5C17.5 4 14.5 4 12 5.5v14c2.5-1.5 5.5-1.5 8 0z"/></svg><span>Recos</span></a>
+<a href="#entrainement" data-tab="train"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l2 2 4-4"/><rect x="4" y="4" width="16" height="16" rx="3"/></svg><span>Entraînement</span><span class="dot" id="due-dot" hidden></span></a>
+<a href="#recherche" data-tab="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span>Recherche</span></a>
+<a href="#outils" data-tab="tools"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8"/><path d="M8 11h.01M12 11h.01M16 11h.01M8 14.5h.01M12 14.5h.01M16 14.5h.01M8 18h.01M12 18h4"/></svg><span>Outils</span></a>
+</nav>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<section class="lock" id="lockscreen" hidden>
+<form class="lock-card" id="unlock" autocomplete="on">
+<img src="icons/icon-192.png" alt="" width="72" height="72">
+<h1>Recos Cardio</h1>
+<p>Entrez le mot de passe pour ouvrir l’application. Il ne sera plus demandé sur ce téléphone.</p>
+<input type="text" name="username" autocomplete="username" value="recos-cardio" hidden>
+<label for="pw" class="lock-l">Mot de passe</label>
+<input id="pw" name="password" type="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+<button type="submit" id="unlock-btn">Ouvrir</button>
+<p class="lock-err" id="lock-err" role="alert" hidden></p>
+</form>
+</section>
+
+<script>
+/* ===================================================================
+   Calculateurs. Chaque calculateur se rend dans <div class="calc" data-calc="id">,
+   recalcule à chaque saisie et ne conserve rien.
+   =================================================================== */
+(function () {
+  var uid = 0;
+  function n(v) { var x = parseFloat(String(v == null ? '' : v).replace(',', '.')); return isNaN(x) ? null : x; }
+  function fmt(x, d) { return x.toLocaleString('fr-FR', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
+  function num(p, id, label, unit, attrs) {
+    return '<label class="c-f" for="' + p + id + '"><span>' + label + '</span><span class="c-in"><input id="' + p + id +
+      '" data-k="' + id + '" type="number" inputmode="decimal" step="any" ' + (attrs || '') + '>' +
+      (unit ? '<em>' + unit + '</em>' : '') + '</span></label>';
+  }
+  function chk(p, id, label, pts) {
+    return '<label class="c-c" for="' + p + id + '"><input id="' + p + id + '" data-k="' + id + '" type="checkbox"><span>' + label +
+      '</span>' + (pts !== undefined ? '<b>' + String(pts).replace('.', ',') + '</b>' : '') + '</label>';
+  }
+  function radio(p, id, legend, opts) {
+    return '<fieldset class="c-r"><legend>' + legend + '</legend>' + opts.map(function (o, i) {
+      return '<label for="' + p + id + i + '"><input id="' + p + id + i + '" type="radio" name="' + p + id + '" data-k="' + id + '" value="' + o[0] + '"' +
+        (i === 0 ? ' checked' : '') + '><span>' + o[1] + '</span>' + (o[2] !== undefined ? '<b>' + String(o[2]).replace('.', ',') + '</b>' : '') + '</label>';
+    }).join('') + '</fieldset>';
+  }
+  function sub(t) { return '<p class="c-sub">' + t + '</p>'; }
+  function vals(root) {
+    var v = {};
+    root.querySelectorAll('[data-k]').forEach(function (el) {
+      var k = el.dataset.k;
+      if (el.type === 'checkbox') v[k] = el.checked;
+      else if (el.type === 'radio') { if (el.checked) v[k] = el.value; }
+      else v[k] = el.value;
+    });
+    return v;
+  }
+  function out(level, big, text) { return '<div class="c-out ' + (level || '') + '"><strong>' + big + '</strong><span>' + text + '</span></div>'; }
+  function tbl(rows) { return '<table class="c-t">' + rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>'; }).join('') + '</table>'; }
+  function sexe(p) { return radio(p, 'sexe', 'Sexe', [['h', 'Homme'], ['f', 'Femme']]); }
+  function cg(age, poids, cr, sx) { return (140 - age) * poids * (sx === 'f' ? 1.04 : 1.23) / cr; }
+  function ckdepi(age, cr, sx) {
+    var s = cr / 88.4, k = sx === 'f' ? 0.7 : 0.9, a = sx === 'f' ? -0.241 : -0.302;
+    return 142 * Math.pow(Math.min(s / k, 1), a) * Math.pow(Math.max(s / k, 1), -1.2) * Math.pow(0.9938, age) * (sx === 'f' ? 1.012 : 1);
+  }
+  function renalInputs(p) {
+    return '<div class="c-grid">' + num(p, 'age', 'Âge', 'ans', 'min="18" max="110"') + num(p, 'poids', 'Poids', 'kg', 'min="20" max="250"') +
+      num(p, 'cr', 'Créatinine', 'µmol/L', 'min="20" max="1500"') + '</div>' + sexe(p);
+  }
+
+  var C = {};
+
+  C.cha2ds2va = {
+    title: 'Score CHA₂DS₂-VA (fibrillation atriale, 2024)',
+    form: function (p) {
+      return '<div class="c-list">' + chk(p, 'c', 'Insuffisance cardiaque (symptomatique quelle que soit la fraction d’éjection, ou fraction d’éjection ≤ 40 %)', 1) +
+        chk(p, 'h', 'Hypertension artérielle (traitée ou pression ≥ 140/90 mmHg à plusieurs reprises)', 1) + '</div>' +
+        radio(p, 'a', 'Âge', [['0', 'Moins de 65 ans', 0], ['1', '65 à 74 ans', 1], ['2', '75 ans ou plus', 2]]) +
+        '<div class="c-list">' + chk(p, 'd', 'Diabète', 1) + chk(p, 's', 'AVC, accident ischémique transitoire ou embolie artérielle', 2) +
+        chk(p, 'v', 'Maladie vasculaire (infarctus, coronaropathie, artériopathie périphérique, plaque aortique)', 1) + '</div>';
+    },
+    calc: function (v) {
+      var s = (v.c ? 1 : 0) + (v.h ? 1 : 0) + (+v.a || 0) + (v.d ? 1 : 0) + (v.s ? 2 : 0) + (v.v ? 1 : 0);
+      var r = s >= 2 ? ['hi', 'Anticoagulation orale recommandée (classe I C). Anticoagulant oral direct de préférence (I A).']
+        : s === 1 ? ['mid', 'Anticoagulation orale à envisager (classe IIa C), en décision partagée.']
+          : ['lo', 'Pas d’anticoagulation pour prévenir l’AVC sur ce seul score.'];
+      return out(r[0], s + ' <small>point' + (s > 1 ? 's' : '') + '</small>', r[1]) +
+        '<p class="c-n">Le sexe féminin n’est plus compté. Anticoagulation quel que soit le score en cas de cardiomyopathie hypertrophique, d’amylose cardiaque, de valve mécanique (antivitamine K) ou de rétrécissement mitral significatif (antivitamine K). Réévaluer le score régulièrement.</p>';
+    }
+  };
+
+  C.hasbled = {
+    title: 'Score HAS-BLED (risque hémorragique sous anticoagulant)',
+    form: function (p) {
+      return '<div class="c-list">' + chk(p, 'h', 'Hypertension non contrôlée (systolique > 160 mmHg)', 1) +
+        chk(p, 'r', 'Insuffisance rénale sévère (dialyse, greffe, créatinine > 200 µmol/L)', 1) +
+        chk(p, 'f', 'Hépatopathie (cirrhose, ou bilirubine > 2 fois et transaminases > 3 fois la normale)', 1) +
+        chk(p, 's', 'Antécédent d’AVC', 1) + chk(p, 'b', 'Saignement majeur ou prédisposition (anémie, thrombopénie)', 1) +
+        chk(p, 'l', 'INR instable (sous antivitamine K, temps dans la zone < 60 %)', 1) + chk(p, 'e', 'Âge > 65 ans', 1) +
+        chk(p, 'm', 'Antiplaquettaire ou anti-inflammatoire non stéroïdien', 1) + chk(p, 'al', 'Alcool (≥ 8 verres par semaine)', 1) + '</div>';
+    },
+    calc: function (v) {
+      var s = ['h', 'r', 'f', 's', 'b', 'l', 'e', 'm', 'al'].reduce(function (a, k) { return a + (v[k] ? 1 : 0); }, 0);
+      var hi = s >= 3;
+      return out(hi ? 'hi' : 'lo', s + ' <small>point' + (s > 1 ? 's' : '') + '</small>', hi ? 'Risque hémorragique élevé : corriger les facteurs modifiables (pression artérielle, antiplaquettaire inutile, alcool, INR) et revoir le patient plus souvent.' : 'Risque hémorragique non élevé.') +
+        '<p class="c-n warn">Un score hémorragique ne doit pas servir à refuser ou arrêter l’anticoagulation (classe III B). Il sert à repérer les facteurs modifiables (I B).</p>';
+    }
+  };
+
+  C.aod = {
+    title: 'Dose des anticoagulants oraux directs (fibrillation atriale)',
+    form: function (p) {
+      return renalInputs(p) + '<div class="c-list">' + chk(p, 'vera', 'Vérapamil') +
+        chk(p, 'pgp', 'Ciclosporine, dronédarone, érythromycine ou kétoconazole') + '</div>';
+    },
+    calc: function (v) {
+      var age = n(v.age), w = n(v.poids), cr = n(v.cr);
+      if (age === null || w === null || cr === null) return out('', '—', 'Renseignez âge, poids, créatinine et sexe. La clairance est calculée par Cockcroft-Gault avec le poids réel.');
+      var cl = cg(age, w, cr, v.sexe), rows = [], lvl = 'lo';
+      if (cl < 15) return out('hi', fmt(cl) + ' <small>mL/min</small>', 'Clairance < 15 mL/min : anticoagulants oraux directs non recommandés. Antivitamine K ou avis spécialisé.');
+      // apixaban
+      var crit = (age >= 80 ? 1 : 0) + (w <= 60 ? 1 : 0) + (cr >= 133 ? 1 : 0);
+      rows.push(['Apixaban', (crit >= 2 || cl < 30) ? '2,5 mg × 2/j <br><small>' + (cl < 30 ? 'clairance 15–29' : crit + ' critères sur 3') + '</small>' : '5 mg × 2/j <br><small>' + crit + ' critère' + (crit > 1 ? 's' : '') + ' sur 3</small>']);
+      // rivaroxaban
+      rows.push(['Rivaroxaban', cl < 50 ? '15 mg/j <br><small>clairance 15–49, au cours du repas</small>' : '20 mg/j <br><small>au cours du repas</small>']);
+      // édoxaban
+      var ed = [];
+      if (cl <= 50) ed.push('clairance 15–50'); if (w <= 60) ed.push('poids ≤ 60 kg'); if (v.pgp) ed.push('inhibiteur de la glycoprotéine P');
+      rows.push(['Édoxaban', ed.length ? '30 mg/j <br><small>' + ed.join(', ') + '</small>' : '60 mg/j' + (cl > 95 ? ' <br><small>clairance > 95 : efficacité moindre observée</small>' : '')]);
+      // dabigatran
+      var dab;
+      if (cl < 30) dab = 'contre-indiqué <br><small>clairance < 30</small>';
+      else if (age >= 80 || v.vera) dab = '110 mg × 2/j <br><small>' + (age >= 80 ? 'âge ≥ 80 ans' : 'vérapamil') + '</small>';
+      else if (age >= 75 || cl <= 50) dab = '150 ou 110 mg × 2/j <br><small>à discuter : ' + (age >= 75 ? '75–79 ans' : 'clairance 30–50') + ', risque hémorragique</small>';
+      else dab = '150 mg × 2/j';
+      rows.push(['Dabigatran', dab]);
+      if (cl < 30) lvl = 'mid';
+      return out(lvl, fmt(cl) + ' <small>mL/min (Cockcroft-Gault)</small>', 'Doses de prévention de l’AVC dans la fibrillation atriale. Une dose réduite sans critère est délétère (III B).') + tbl(rows) +
+        '<p class="c-n">Contre-indiqués : valve mécanique, rétrécissement mitral rhumatismal significatif. Vérifier les interactions (rifampicine, antiépileptiques inducteurs, antirétroviraux) dans le résumé des caractéristiques du produit.</p>';
+    }
+  };
+
+  C.cockcroft = {
+    title: 'Fonction rénale : Cockcroft-Gault et CKD-EPI',
+    form: function (p) { return renalInputs(p); },
+    calc: function (v) {
+      var age = n(v.age), w = n(v.poids), cr = n(v.cr);
+      if (age === null || cr === null) return out('', '—', 'Renseignez âge, créatinine et sexe (et le poids pour Cockcroft-Gault).');
+      var e = ckdepi(age, cr, v.sexe), st = e >= 90 ? 'G1' : e >= 60 ? 'G2' : e >= 45 ? 'G3a' : e >= 30 ? 'G3b' : e >= 15 ? 'G4' : 'G5';
+      var rows = [['CKD-EPI 2021', fmt(e) + ' mL/min/1,73 m² · stade ' + st]];
+      var big, lvl;
+      if (w !== null) {
+        var cl = cg(age, w, cr, v.sexe);
+        rows.unshift(['Cockcroft-Gault', fmt(cl) + ' mL/min']);
+        big = fmt(cl) + ' <small>mL/min (Cockcroft-Gault)</small>';
+        lvl = cl < 30 ? 'hi' : cl < 60 ? 'mid' : 'lo';
+      } else { big = fmt(e) + ' <small>mL/min/1,73 m² (CKD-EPI)</small>'; lvl = e < 30 ? 'hi' : e < 60 ? 'mid' : 'lo'; }
+      return out(lvl, big, 'Les doses des anticoagulants oraux directs et de nombreux médicaments cardiologiques sont adaptées à la clairance de Cockcroft-Gault (poids réel) ; le CKD-EPI sert à classer la maladie rénale.') + tbl(rows);
+    }
+  };
+
+  C.h2fpef = {
+    title: 'Score H₂FPEF (probabilité d’insuffisance cardiaque à fraction d’éjection préservée)',
+    form: function (p) {
+      return '<div class="c-list">' + chk(p, 'o', 'Obésité : indice de masse corporelle > 30 kg/m²', 2) +
+        chk(p, 'h', 'Hypertension traitée par au moins 2 antihypertenseurs', 1) + chk(p, 'f', 'Fibrillation atriale paroxystique ou persistante', 3) +
+        chk(p, 'p', 'Pression artérielle pulmonaire systolique > 35 mmHg (échocardiographie)', 1) + chk(p, 'e', 'Âge > 60 ans', 1) +
+        chk(p, 'r', 'Rapport E/e′ > 9', 1) + '</div>';
+    },
+    calc: function (v) {
+      var s = (v.o ? 2 : 0) + (v.h ? 1 : 0) + (v.f ? 3 : 0) + (v.p ? 1 : 0) + (v.e ? 1 : 0) + (v.r ? 1 : 0);
+      var r = s >= 6 ? ['hi', 'Probabilité élevée (supérieure à 90 % dans la cohorte de dérivation).']
+        : s >= 2 ? ['mid', 'Probabilité intermédiaire : peptides natriurétiques, échocardiographie d’effort ou cathétérisme droit à l’effort selon le contexte.']
+          : ['lo', 'Probabilité faible.'];
+      return out(r[0], s + ' <small>sur 9</small>', r[1]) + '<p class="c-n">Score de Reddy (2018). Les recommandations 2026 l’utilisent pour éveiller le soupçon, pas pour poser le diagnostic.</p>';
+    }
+  };
+
+  C.scai = {
+    title: 'Stade SCAI du choc cardiogénique',
+    form: function (p) {
+      return radio(p, 's', 'Situation du patient', [
+        ['A', 'Pas de signe de choc, mais à risque (infarctus étendu, insuffisance cardiaque décompensée)'],
+        ['B', 'Instabilité hémodynamique (hypotension relative, tachycardie) sans hypoperfusion'],
+        ['C', 'Hypoperfusion (lactates > 2 mmol/L, oligurie, marbrures, confusion) nécessitant une intervention : inotrope, vasopresseur ou assistance'],
+        ['D', 'Comme C, sans réponse aux premières mesures (aggravation ou escalade nécessaire)'],
+        ['E', 'Choc réfractaire ou arrêt cardiaque, plusieurs supports simultanés, réanimation en cours']]) +
+        '<div class="c-list">' + chk(p, 'ca', 'Arrêt cardiaque survenu (modificateur « A »)') + '</div>';
+    },
+    calc: function (v) {
+      var t = { A: 'À risque : surveillance rapprochée, traitement de la cause.', B: 'Début de choc : corriger la cause, éviter l’aggravation, monitorage rapproché.',
+        C: 'Choc classique : inotrope et/ou vasopresseur, traitement de la cause (coronarographie si infarctus), discussion précoce avec l’équipe de choc.',
+        D: 'Aggravation : escalade thérapeutique, discussion d’une assistance circulatoire de courte durée selon les critères et l’équipe.',
+        E: 'Extrême : réanimation, assistance circulatoire si un projet est possible ; discuter la futilité.' };
+      var s = v.s || 'A';
+      return out(s === 'A' || s === 'B' ? 'mid' : 'hi', 'Stade ' + s + (v.ca ? '<small> + arrêt cardiaque</small>' : ''), t[s]) +
+        '<p class="c-n">Pas de seuil tensionnel imposé : un choc peut être normotendu. Ballon de contrepulsion systématique non recommandé dans le choc d’infarctus (III B).</p>';
+    }
+  };
+
+  C.archbr = {
+    title: 'Haut risque hémorragique selon l’Academic Research Consortium (ARC-HBR)',
+    form: function (p) {
+      return sub('Critères majeurs') + '<div class="c-list">' +
+        chk(p, 'M1', 'Anticoagulation orale au long cours prévue') +
+        chk(p, 'M2', 'Insuffisance rénale sévère ou terminale (débit < 30 mL/min)') +
+        chk(p, 'M3', 'Hémoglobine < 11 g/dL') +
+        chk(p, 'M4', 'Saignement spontané ayant nécessité hospitalisation ou transfusion dans les 6 mois, ou récidivant') +
+        chk(p, 'M5', 'Thrombopénie préexistante modérée ou sévère (< 100 000/mm³)') +
+        chk(p, 'M6', 'Trouble chronique de l’hémostase') +
+        chk(p, 'M7', 'Cirrhose avec hypertension portale') +
+        chk(p, 'M8', 'Cancer actif (hors cancer cutané non mélanome) dans les 12 mois') +
+        chk(p, 'M9', 'Hémorragie intracrânienne spontanée (quelle que soit la date), traumatique dans les 12 mois, malformation artérioveineuse cérébrale, ou AVC ischémique modéré à sévère dans les 6 mois') +
+        chk(p, 'M10', 'Chirurgie majeure non différable sous double antiagrégation') +
+        chk(p, 'M11', 'Chirurgie majeure ou traumatisme majeur dans les 30 jours précédant l’angioplastie') + '</div>' +
+        sub('Critères mineurs') + '<div class="c-list">' +
+        chk(p, 'm1', 'Âge ≥ 75 ans') + chk(p, 'm2', 'Insuffisance rénale modérée (débit 30–59 mL/min)') +
+        chk(p, 'm3', 'Hémoglobine 11–12,9 g/dL chez l’homme, 11–11,9 g/dL chez la femme') +
+        chk(p, 'm4', 'Saignement spontané ayant nécessité hospitalisation ou transfusion dans les 12 mois, sans critère majeur') +
+        chk(p, 'm5', 'Anti-inflammatoire non stéroïdien ou corticoïde oral au long cours') +
+        chk(p, 'm6', 'AVC ischémique à tout moment, sans critère majeur') + '</div>';
+    },
+    calc: function (v) {
+      var M = 0, m = 0, k;
+      for (k = 1; k <= 11; k++) if (v['M' + k]) M++;
+      for (k = 1; k <= 6; k++) if (v['m' + k]) m++;
+      var hbr = M >= 1 || m >= 2;
+      return out(hbr ? 'hi' : 'lo', hbr ? 'Haut risque' : 'Pas de haut risque', M + ' majeur' + (M > 1 ? 's' : '') + ', ' + m + ' mineur' + (m > 1 ? 's' : '') +
+        '. Haut risque hémorragique si au moins 1 critère majeur ou 2 mineurs (risque de saignement majeur ≥ 4 % à 1 an).') +
+        (hbr ? '<p class="c-n">Options après syndrome coronarien aigu (2023) : monothérapie après 1 mois de double antiagrégation (IIb B), désescalade vers le clopidogrel (IIb A, jamais dans les 30 premiers jours), inhibiteur de la pompe à protons (I A).</p>' : '');
+    }
+  };
+
+  C['grace-lien'] = {
+    title: 'Délai de la coronarographie (syndrome coronarien aigu sans sus-décalage)',
+    form: function (p) {
+      return sub('Très haut risque') + '<div class="c-list">' +
+        chk(p, 'v1', 'Instabilité hémodynamique ou choc cardiogénique') + chk(p, 'v2', 'Douleur récidivante ou réfractaire au traitement') +
+        chk(p, 'v3', 'Arythmie menaçante à l’hôpital') + chk(p, 'v4', 'Complication mécanique') +
+        chk(p, 'v5', 'Insuffisance cardiaque aiguë attribuée à l’ischémie') + chk(p, 'v6', 'Modifications dynamiques récidivantes du segment ST, surtout sus-décalage intermittent') + '</div>' +
+        sub('Haut risque') + '<div class="c-list">' +
+        chk(p, 'h1', 'Infarctus confirmé par l’algorithme de troponine') + chk(p, 'h2', 'Modifications dynamiques du segment ST ou de l’onde T') +
+        chk(p, 'h3', 'Sus-décalage transitoire du segment ST') + chk(p, 'h4', 'Score GRACE > 140') + '</div>' +
+        '<p class="c-n">Score GRACE : <a class="c-link" href="https://www.mdcalc.com/calc/1099/grace-acs-risk-mortality-calculator" target="_blank" rel="noopener">calculateur en ligne ↗</a> (coefficients non reproduits ici).</p>';
+    },
+    calc: function (v) {
+      var vh = ['v1', 'v2', 'v3', 'v4', 'v5', 'v6'].some(function (k) { return v[k]; });
+      var h = ['h1', 'h2', 'h3', 'h4'].some(function (k) { return v[k]; });
+      if (vh) return out('hi', 'Immédiate', 'Stratégie invasive immédiate (moins de 2 h en pratique), classe I C.');
+      if (h) return out('mid', 'Moins de 24 h', 'Stratégie invasive précoce, classe IIa A. Pas de prétraitement systématique par inhibiteur de P2Y12 (III A).');
+      return out('lo', 'Sélective', 'Sans critère de haut risque et avec faible suspicion : approche invasive sélective (I A), après test non invasif si besoin. Forte suspicion d’angor instable : coronarographie pendant l’hospitalisation (I A).');
+    }
+  };
+
+  C['surface-ao'] = {
+    title: 'Rétrécissement aortique : équation de continuité',
+    form: function (p) {
+      return '<div class="c-grid">' + num(p, 'd', 'Diamètre de la chambre de chasse', 'mm', 'min="10" max="35"') +
+        num(p, 'itc', 'Intégrale temps-vitesse sous-aortique', 'cm', 'min="5" max="50"') +
+        num(p, 'ita', 'Intégrale temps-vitesse aortique', 'cm', 'min="10" max="200"') +
+        num(p, 'vm', 'Vitesse maximale aortique', 'm/s', 'min="1" max="8"') +
+        num(p, 'gm', 'Gradient moyen', 'mmHg', 'min="0" max="150"') +
+        num(p, 'fe', 'Fraction d’éjection', '%', 'min="5" max="85"') +
+        num(p, 'h', 'Taille', 'cm', 'min="100" max="230"') + num(p, 'w', 'Poids', 'kg', 'min="20" max="250"') + '</div>';
+    },
+    calc: function (v) {
+      var d = n(v.d), itc = n(v.itc), ita = n(v.ita), vm = n(v.vm), gm = n(v.gm), fe = n(v.fe), h = n(v.h), w = n(v.w);
+      if (!d || !itc || !ita) return out('', '—', 'Renseignez au minimum le diamètre de la chambre de chasse et les deux intégrales temps-vitesse.');
+      var sccvg = Math.PI * Math.pow(d / 20, 2), ves = sccvg * itc, sa = ves / ita, ratio = itc / ita;
+      var sc = (h && w) ? Math.sqrt(h * w / 3600) : null;
+      var rows = [['Surface aortique', fmt(sa, 2) + ' cm²'], ['Rapport des intégrales', fmt(ratio, 2) + (ratio < 0.25 ? ' (< 0,25)' : '')], ['Volume d’éjection', fmt(ves) + ' mL']];
+      if (sc) { rows.splice(1, 0, ['Surface indexée', fmt(sa / sc, 2) + ' cm²/m²']); rows.push(['Volume d’éjection indexé', fmt(ves / sc) + ' mL/m²']); rows.push(['Surface corporelle', fmt(sc, 2) + ' m²']); }
+      if (vm) rows.push(['Gradient maximal (4 V²)', fmt(4 * vm * vm) + ' mmHg']);
+      var serre = sa <= 1.0 || (sc && sa / sc <= 0.6);
+      var hiG = (gm !== null && gm >= 40) || (vm !== null && vm >= 4);
+      var bas = sc ? ves / sc <= 35 : null;
+      var verdict, lvl;
+      if (!serre) { verdict = hiG ? 'Gradient élevé avec surface > 1 cm² : rétrécissement serré si pas de haut débit réversible (anémie, hyperthyroïdie, fistule) ; vérifier la mesure de la chambre de chasse.' : 'Surface > 1 cm² : pas de rétrécissement serré.'; lvl = hiG ? 'mid' : 'lo'; }
+      else if (hiG || (gm === null && vm === null)) {
+        lvl = 'hi'; verdict = (gm === null && vm === null) ? 'Surface compatible avec un rétrécissement serré : confronter au gradient et à la vitesse.' : 'Rétrécissement aortique serré à gradient élevé.' +
+          (((gm !== null && gm >= 60) || (vm !== null && vm > 5)) ? ' Très serré (gradient ≥ 60 mmHg ou vitesse > 5 m/s).' : '');
+      } else if (bas && fe !== null && fe < 50) { lvl = 'hi'; verdict = 'Bas débit, bas gradient, fraction d’éjection réduite : échocardiographie sous dobutamine (réserve contractile) et/ou score calcique.'; }
+      else if (bas) { lvl = 'mid'; verdict = 'Bas débit, bas gradient, fraction d’éjection préservée : vérifier les mesures, contrôler la pression artérielle, score calcique.'; }
+      else if (bas === false) { lvl = 'mid'; verdict = 'Débit normal, bas gradient : en général rétrécissement modéré ; vérifier la chambre de chasse (erreur fréquente).'; }
+      else { lvl = 'mid'; verdict = 'Surface ≤ 1 cm² avec bas gradient : renseignez taille et poids pour juger du débit.'; }
+      return out(lvl, fmt(sa, 2) + ' <small>cm²</small>', verdict) + tbl(rows) +
+        '<p class="c-n">Seuils 2025 : gradient moyen ≥ 40 mmHg, vitesse ≥ 4,0 m/s, surface ≤ 1,0 cm² (≤ 0,6 cm²/m²) ; bas débit si volume d’éjection indexé ≤ 35 mL/m². Score calcique en faveur d’un serré : > 2 000 unités Agatston chez l’homme, > 1 200 chez la femme.</p>';
+    }
+  };
+
+  C['inr-valve'] = {
+    title: 'Cible d’INR des valves mécaniques',
+    form: function (p) {
+      return radio(p, 't', 'Type et position de la valve', [['ao', 'Aortique, double ailette ou disque unique de génération actuelle'],
+        ['old', 'Bille en cage ou disque basculant (toute position)'], ['mt', 'Mitrale ou tricuspide (tout modèle)']]) +
+        sub('Facteurs de risque') + '<div class="c-list">' + chk(p, 'r1', 'État d’hypercoagulabilité') + chk(p, 'r2', 'Fraction d’éjection < 35 %') +
+        chk(p, 'r3', 'Fibrillation atriale avec rétrécissement mitral significatif') +
+        chk(p, 'r4', 'Événement thrombotique majeur de moins de 12 mois (AVC embolique, thrombose veineuse, embolie pulmonaire)') + '</div>' +
+        '<div class="c-list">' + chk(p, 'hb', 'Risque hémorragique élevé') + '</div>';
+    },
+    calc: function (v) {
+      var fr = v.r1 || v.r2 || v.r3 || v.r4, t = v.t || 'ao', c;
+      if (t === 'ao') c = fr ? ['3', '2,5–3,5'] : ['2,5', '2–3'];
+      else c = fr ? ['3,5', '3–4'] : ['3', '2,5–3,5'];
+      var note = '';
+      if (t === 'ao' && !fr && v.hb) note = '<p class="c-n">Risque hémorragique élevé avec valve aortique de génération actuelle : une cible de 2 (1,5–2,5) est possible.</p>';
+      return out(fr ? 'mid' : 'lo', 'INR ' + c[0] + ' <small>(' + c[1] + ')</small>', 'Antivitamine K à vie (I A). Anticoagulants oraux directs contre-indiqués (III A).') + note +
+        '<p class="c-n">Risque thrombotique très élevé : ajouter de l’aspirine à faible dose plutôt qu’augmenter l’INR. Athérosclérose symptomatique : aspirine 75–100 mg/j à envisager (IIa B).</p>';
+    }
+  };
+
+  C['doses-sca'] = {
+    title: 'Doses selon le poids (syndromes coronariens aigus)',
+    form: function (p) { return '<div class="c-grid">' + num(p, 'w', 'Poids', 'kg', 'min="30" max="250"') + num(p, 'age', 'Âge', 'ans', 'min="18" max="110"') + num(p, 'cl', 'Clairance (facultatif)', 'mL/min', 'min="0" max="200"') + '</div>'; },
+    calc: function (v) {
+      var w = n(v.w), age = n(v.age), cl = n(v.cl);
+      if (!w) return out('', '—', 'Saisissez le poids (et l’âge pour la ténectéplase et l’énoxaparine).');
+      var old = age !== null && age >= 75;
+      var tnk = w < 60 ? 30 : w < 70 ? 35 : w < 80 ? 40 : w < 90 ? 45 : 50;
+      var tnkTxt = old ? fmt(tnk / 2, 1) + ' mg (demi-dose, ≥ 75 ans)' : tnk + ' mg';
+      var r = function (x, d) { return fmt(x, d || 0); };
+      var rows = [
+        ['Ténectéplase (bolus)', age === null ? tnk + ' mg (demi-dose si ≥ 75 ans)' : tnkTxt],
+        ['Altéplase', '15 mg, puis ' + r(Math.min(50, 0.75 * w)) + ' mg en 30 min, puis ' + r(Math.min(35, 0.5 * w)) + ' mg en 60 min'],
+        ['Héparine non fractionnée, angioplastie', r(70 * w, 0) + '–' + r(100 * w, 0) + ' UI en bolus'],
+        ['Énoxaparine', (cl !== null && cl < 30) ? r(w) + ' mg × 1/j (clairance < 30)' : r(w) + ' mg × 2/j sous-cutané'],
+        ['Énoxaparine avec fibrinolyse', age === null ? 'renseigner l’âge' : old ? 'pas de bolus, ' + r(Math.min(75, 0.75 * w)) + ' mg × 2/j' : '30 mg intraveineux puis ' + r(Math.min(100, w)) + ' mg × 2/j'],
+        ['Énoxaparine en salle (> 8 h)', r(0.3 * w, 1) + ' mg intraveineux'],
+        ['Bivalirudine', r(0.75 * w, 1) + ' mg puis ' + r(((cl !== null && cl < 30) ? 1 : 1.75) * w, 1) + ' mg/h'],
+        ['Cangrélor', r(0.03 * w, 1) + ' mg puis ' + r(4 * w) + ' µg/min'],
+        ['Eptifibatide', r(0.18 * w, 1) + ' mg × 2 puis ' + r(((cl !== null && cl >= 30 && cl <= 50) ? 1 : 2) * w) + ' µg/min'],
+        ['Tirofiban', r(0.025 * w, 2) + ' mg puis ' + r(((cl !== null && cl <= 60) ? 0.075 : 0.15) * w, 1) + ' µg/min']
+      ];
+      return out('', tnkTxt + ' <small>ténectéplase</small>', 'Doses calculées à partir des posologies de l’onglet Posologies. Vérifier avec le protocole local et le résumé des caractéristiques du produit.') + tbl(rows) +
+        '<p class="c-n">Plafonds de l’énoxaparine avec fibrinolyse (100 mg, 75 mg après 75 ans) appliqués aux 2 premières doses (schéma ExTRACT).</p>';
+    }
+  };
+
+  function mount(el) {
+    var c = C[el.dataset.calc];
+    if (!c || el.dataset.ready) return;
+    el.dataset.ready = '1';
+    var p = 'c' + (++uid) + '-';
+    el.innerHTML = '<div class="c-head">' + c.title + '</div><form class="c-form" autocomplete="off">' + c.form(p) +
+      '</form><div class="c-res" aria-live="polite"></div><div class="c-more"></div>';
+    var form = el.querySelector('form'), res = el.querySelector('.c-res'), more = el.querySelector('.c-more');
+    function go() {
+      var tmp = document.createElement('div'); tmp.innerHTML = c.calc(vals(form));
+      var first = tmp.firstElementChild;
+      res.innerHTML = ''; if (first) res.appendChild(first);
+      more.innerHTML = tmp.innerHTML; more.hidden = !tmp.innerHTML;
+    }
+    form.addEventListener('input', go);
+    form.addEventListener('change', go);
+    form.addEventListener('submit', function (e) { e.preventDefault(); });
+    go();
+  }
+  window.CALCS = C;
+  window.mountCalcs = function (root) { (root || document).querySelectorAll('.calc[data-calc]').forEach(mount); };
+})();
+
+/* ===================================================================
+   Application
+   =================================================================== */
+window.initApp = function (D) {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem('rc:' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem('rc:' + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var norm = function (s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); };
+  var plural = function (n, s, p) { return n + ' ' + (n > 1 ? (p || s + 's') : s); };
+
+  var DISC = {}; D.cat.disciplines.forEach(function (d) { DISC[d.id] = d; });
+  var G = {}; D.g.forEach(function (g) { G[g.id] = g; });
+  var O = {}; D.o.forEach(function (o) { O[o.id] = o; });
+  var Q = {}; D.q.forEach(function (q) { Q[q.id] = q; });
+  var KIND = { qi: 'Question isolée', kfp: 'Réponses clés', dp: 'Dossier progressif' };
+  var FMT = { qrm: 'Plusieurs réponses possibles', qru: 'Une seule réponse', menu: 'Réponses clés' };
+  var CALC_GROUPS = [
+    ['Rythmologie', ['cha2ds2va', 'hasbled', 'aod']],
+    ['Maladie coronaire', ['grace-lien', 'archbr', 'doses-sca']],
+    ['Insuffisance cardiaque', ['h2fpef', 'scai']],
+    ['Valves', ['surface-ao', 'inr-valve']],
+    ['Rein', ['cockcroft']]
+  ];
+  var CLS = { I: 'Classe I : recommandé, indiqué', IIa: 'Classe IIa : doit être envisagé', IIb: 'Classe IIb : peut être envisagé', III: 'Classe III : non recommandé (inutile ou dangereux)' };
+  var LVL = { A: 'Niveau A : plusieurs essais randomisés ou méta-analyse (en 2026 : preuve concluante, en général au moins deux essais puissants)',
+    B: 'Niveau B : un essai randomisé ou de grandes études non randomisées', B1: 'Niveau B1 (2026) : au moins un essai randomisé de puissance suffisante, sans biais majeur',
+    B2: 'Niveau B2 (2026) : au moins deux études non randomisées bien contrôlées, ou méta-analyse de petits essais', C: 'Niveau C : consensus d’experts, petites études ou registres' };
+
+  // ---------- répétition espacée ----------
+  var srs = store.get('srs', {});
+  var IV = [0, 1, 3, 7, 16, 35];
+  function today() { var d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 864e5); }
+  function isDue(id) { var r = srs[id]; return !!r && r.due <= today(); }
+  function record(id, sc) {
+    var r = srs[id] || { b: 0, n: 0, ok: 0 }, good = sc >= 0.7;
+    r.n++; if (good) { r.ok++; r.b = Math.min(r.b + 1, 5); } else r.b = 0;
+    r.due = today() + IV[r.b]; r.last = Math.round(sc * 100) / 100; r.d = today();
+    srs[id] = r; store.set('srs', srs);
+  }
+  function dueCount(list) { return (list || D.q).filter(function (q) { return isDue(q.id); }).length; }
+  function updateDot() { var n = dueCount(), d = $('#due-dot'); d.hidden = !n; d.textContent = n > 99 ? '99+' : n; }
+
+  // ---------- interface générale ----------
+  var size = store.get('size', 0);
+  document.documentElement.setAttribute('data-size', size);
+  $('#size').addEventListener('click', function () { size = (size + 1) % 3; document.documentElement.setAttribute('data-size', size); store.set('size', size); });
+  var toastT = null;
+  function toast(html) { var t = $('#toast'); t.innerHTML = html; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 4200); }
+  $('#toast').addEventListener('click', function () { this.hidden = true; });
+
+  var views = { home: $('#v-home'), doc: $('#v-doc'), train: $('#v-train'), session: $('#v-session'), search: $('#v-search'), tools: $('#v-tools'), calc: $('#v-calc') };
+  var TAB = { home: 'home', doc: 'home', train: 'train', session: 'train', search: 'search', tools: 'tools', calc: 'tools' };
+  var current = { view: 'home' }, listView = 'home';
+  function showView(name, tabOverride) {
+    Object.keys(views).forEach(function (k) { views[k].hidden = (k !== name); });
+    var tab = tabOverride || TAB[name];
+    $$('.tabbar a').forEach(function (a) { if (a.dataset.tab === tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    current.view = name;
+  }
+  function setBar(mode, title) {
+    $('#back').hidden = (mode === 'top'); $('#brand').hidden = (mode !== 'top');
+    var bt = $('#bar-title'); bt.textContent = title || ''; bt.hidden = (mode === 'top');
+  }
+  function dvars(d) { return '--fc:var(--d-' + d + ');--fcb:var(--d-' + d + '-bg);--gc:var(--d-' + d + ')'; }
+
+  // ---------- accueil ----------
+  var homeFilter = store.get('hf', '');
+  function qcount(gid) { return D.q.filter(function (q) { return q.g === gid; }); }
+  function renderHome() {
+    var last = store.get('last', null), due = dueCount();
+    var h = '<div class="col"><div class="head"><h1>Recommandations européennes de cardiologie</h1><p>Lire, réviser les classes, s’entraîner sur dossiers.</p></div>';
+    if (last && (G[last.g] || O[last.g])) h += '<a class="card-link" href="#' + (G[last.g] ? 'g-' : 'outil-') + last.g + '--' + last.c + '"><span><small>Reprendre la lecture</small><strong>' + esc(last.t) + '</strong></span><span class="go">→</span></a>';
+    if (due) h += '<a class="card-link due" href="#entrainement"><span><small>Répétition espacée</small><strong>' + plural(due, 'question') + ' à revoir aujourd’hui</strong></span><span class="go">→</span></a>';
+    h += '<div class="chips" role="group" aria-label="Disciplines"><button class="chip" data-f="" aria-pressed="' + (!homeFilter) + '">Toutes</button>' +
+      D.cat.disciplines.map(function (d) { return '<button class="chip" data-f="' + d.id + '" aria-pressed="' + (homeFilter === d.id) + '">' + esc(d.t) + '</button>'; }).join('') + '</div>';
+    D.cat.disciplines.forEach(function (d) {
+      var list = D.cat.liste.filter(function (x) { return x.d === d.id; });
+      h += '<section class="group" data-d="' + d.id + '" style="' + dvars(d.id) + '"' + (homeFilter && homeFilter !== d.id ? ' hidden' : '') + '><h2>' + esc(d.t) + '</h2><ul class="rows">';
+      list.forEach(function (x) {
+        var g = x.id && G[x.id];
+        if (g) {
+          var qs = qcount(g.id), seen = qs.filter(function (q) { return srs[q.id]; }).length, nrec = g.ch.reduce(function (a, c) { return a + c.n; }, 0);
+          h += '<li><a class="row" href="#g-' + g.id + '"><span><strong>' + esc(g.t) + '</strong><span class="sub">' + g.y + ' · ' + plural(g.ch.length, 'chapitre') + ' · ' + nrec + ' recommandations · ' + plural(qs.length, 'question') + '</span>' +
+            (qs.length ? '<span class="prog"><i style="width:' + Math.round(seen / qs.length * 100) + '%"></i></span>' : '') + '</span><span class="chev">›</span></a></li>';
+        } else {
+          h += '<li><div class="row soon"><span><strong>' + esc(x.t) + '</strong><span class="sub">' + x.y + ' · à venir</span></span><span></span></div></li>';
+        }
+      });
+      h += '</ul></section>';
+    });
+    h += '<p class="note">Fiches rédigées avec l’aide d’une intelligence artificielle à partir des textes officiels de la Société européenne de cardiologie, pour un usage strictement personnel. Les classes et niveaux ont été relus sur les textes ; vérifiez toujours doses, seuils et indications dans le document original avant une décision.' +
+      (D.built ? ' Contenu du ' + esc(D.built) + '.' : '') + '</p><button class="textbtn" id="lock" type="button">Verrouiller l’application sur ce téléphone</button></div>';
+    views.home.innerHTML = h;
+    $$('.chip', views.home).forEach(function (b) {
+      b.addEventListener('click', function () {
+        homeFilter = b.dataset.f; store.set('hf', homeFilter);
+        $$('.chip', views.home).forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        $$('.group', views.home).forEach(function (s) { s.hidden = !!homeFilter && s.dataset.d !== homeFilter; });
+      });
+    });
+    $('#lock').addEventListener('click', window.lockApp);
+  }
+
+  // ---------- lecture (recommandation ou fiche outil) ----------
+  var doc = null, rev = store.get('rev', false), only13 = store.get('only13', false);
+  function renderDoc(kind, id) {
+    var d = kind === 'g' ? G[id] : O[id];
+    doc = { kind: kind, id: id, d: d, pane: null };
+    var dc = kind === 'g' ? d.d : null;
+    var st = dc ? dvars(dc) : '--fc:var(--accent);--fcb:var(--accent-bg)';
+    var h = '<div class="docw" style="' + st + '"><div class="col d-top">';
+    if (kind === 'g') {
+      h += '<div class="d-eye">' + esc(DISC[dc] ? DISC[dc].t : '') + ' · ' + d.y + '</div><h2>' + esc(d.t) + '</h2>' +
+        '<p class="d-meta">' + esc(d.tl || '') + '. <a href="' + esc(d.src) + '" target="_blank" rel="noopener">Texte officiel ↗</a></p>' +
+        (d.v ? '<p class="d-meta">' + esc(d.v) + '.</p>' : '') +
+        '<div class="d-tools"><button class="chip" id="t-rev" aria-pressed="' + rev + '">Mode révision</button><button class="chip" id="t-13" aria-pressed="' + only13 + '">Classes I et III seulement</button></div>';
+    } else {
+      h += '<div class="d-eye">Outil pratique</div><h2>' + esc(d.t) + '</h2>' + (d.r ? '<p class="d-meta">' + esc(d.r) + '</p>' : '');
+    }
+    h += '</div><nav class="ptabs"><div class="col" role="tablist">' + d.ch.map(function (c) {
+      return '<button class="ptab" role="tab" data-c="' + c.id + '" aria-selected="false">' + esc(c.t) + '</button>';
+    }).join('') + '</div></nav><div class="col"><div class="panes' + (rev ? ' revise' : '') + (only13 ? ' only13' : '') + '"><div class="pane"></div></div><div class="pager"></div></div></div>';
+    views.doc.innerHTML = h;
+    $$('.ptab', views.doc).forEach(function (t) { t.addEventListener('click', function () { location.hash = '#' + (kind === 'g' ? 'g-' : 'outil-') + id + '--' + t.dataset.c; }); });
+    if (kind === 'g') {
+      $('#t-rev').addEventListener('click', function () { rev = !rev; store.set('rev', rev); this.setAttribute('aria-pressed', rev); $('.panes', views.doc).classList.toggle('revise', rev); $$('.reco.show', views.doc).forEach(function (r) { r.classList.remove('show'); }); if (rev) toast('<b>Mode révision</b>Les classes sont masquées : touchez « ? » pour les révéler.'); });
+      $('#t-13').addEventListener('click', function () { only13 = !only13; store.set('only13', only13); this.setAttribute('aria-pressed', only13); $('.panes', views.doc).classList.toggle('only13', only13); });
+    }
+    var panes = $('.panes', views.doc);
+    panes.addEventListener('click', function (e) {
+      var b = e.target.closest('.cls'); if (!b) return;
+      var r = b.parentNode;
+      if (panes.classList.contains('revise') && !r.classList.contains('show')) { r.classList.add('show'); return; }
+      var m = /c-(I|IIa|IIb|III)/.exec(r.className), lv = b.querySelector('small').textContent;
+      toast('<b>' + CLS[m[1]] + '</b>' + LVL[lv]);
+    });
+    var sx = 0, sy = 0, ok = false;
+    panes.addEventListener('touchstart', function (e) { ok = !e.target.closest('.tbl, input, select, .calc'); sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    panes.addEventListener('touchend', function (e) {
+      if (!ok) return;
+      var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+      if (Math.abs(dx) < 70 || Math.abs(dy) > 45) return;
+      var ids = d.ch.map(function (c) { return c.id; }), i = ids.indexOf(doc.pane) + (dx < 0 ? 1 : -1);
+      if (i >= 0 && i < ids.length) location.hash = '#' + (kind === 'g' ? 'g-' : 'outil-') + id + '--' + ids[i];
+    }, { passive: true });
+  }
+  function openPane(chId, term) {
+    var d = doc.d, kind = doc.kind, pre = '#' + (kind === 'g' ? 'g-' : 'outil-') + doc.id + '--';
+    var i = d.ch.findIndex(function (c) { return c.id === chId; }); if (i < 0) i = 0;
+    var c = d.ch[i], fromOther = doc.pane !== null && doc.pane !== c.id;
+    doc.pane = c.id;
+    var pane = $('.pane', views.doc);
+    var h = c.h;
+    if (kind === 'g') {
+      var qs = D.q.filter(function (q) { return q.g === doc.id && q.ch === c.id; });
+      if (qs.length) h += '\n<button class="train-cta" id="t-train" type="button"><span>S’entraîner sur ce chapitre</span><span>' + plural(qs.length, 'question') + ' →</span></button>';
+      if (c.n) h = '<div class="legend"><span class="c-I"><i></i>I</span><span class="c-IIa"><i></i>IIa</span><span class="c-IIb"><i></i>IIb</span><span class="c-III"><i></i>III</span><span>· touchez une classe pour sa définition</span></div>\n' + h;
+    }
+    pane.innerHTML = h;
+    pane.style.animation = 'none'; void pane.offsetHeight; pane.style.animation = '';
+    window.mountCalcs(pane);
+    var tb = $('#t-train'); if (tb) tb.addEventListener('click', function () { trainOn(doc.id, c.id); });
+    $$('.ptab', views.doc).forEach(function (t) {
+      var on = t.dataset.c === c.id; t.setAttribute('aria-selected', String(on));
+      if (on) { var strip = t.parentNode; strip.scrollTo({ left: t.offsetLeft - strip.clientWidth / 2 + t.clientWidth / 2, behavior: 'smooth' }); }
+    });
+    var prev = d.ch[i - 1], next = d.ch[i + 1];
+    $('.pager', views.doc).innerHTML = (prev ? '<a class="prev" href="' + pre + prev.id + '"><small>← Précédent</small><strong>' + esc(prev.t) + '</strong></a>' : '') +
+      (next ? '<a class="next" href="' + pre + next.id + '"><small>Suivant →</small><strong>' + esc(next.t) + '</strong></a>' : '');
+    store.set('last', { g: doc.id, c: c.id, t: d.t + ' · ' + c.t });
+    setBar('back', d.t);
+    var target = null;
+    if (term) {
+      $$('details', pane).forEach(function (x) { if (norm(x.textContent).indexOf(term) !== -1) x.open = true; });
+      target = $$('.reco, p, li, tr, .st, summary', pane).filter(function (el) { return norm(el.textContent).indexOf(term) !== -1; })[0];
+    }
+    if (target) { setTimeout(function () { target.scrollIntoView({ block: 'center' }); target.classList.add('flash'); }, 30); }
+    else {
+      var top = $('.d-top', views.doc).offsetHeight;
+      if (!fromOther) window.scrollTo(0, 0); else if (window.scrollY > top) window.scrollTo(0, top);
+    }
+  }
+
+  // ---------- recherche ----------
+  var idx = null;
+  function buildIndex() {
+    idx = [];
+    var tmp = document.createElement('div');
+    function add(kind, d, label, dc) {
+      d.ch.forEach(function (c) {
+        tmp.innerHTML = c.h.replace(/<\/(p|li|td|th|h3|h4|div|summary|b)>/g, ' </$1>');
+        $$('.calc', tmp).forEach(function (x) { x.remove(); });
+        var raw = tmp.textContent.replace(/\s+/g, ' ').trim();
+        idx.push({ kind: kind, id: d.id, t: label, dc: dc, c: c.id, ct: c.t, raw: raw, n: norm(raw) });
+      });
+    }
+    D.g.forEach(function (g) { add('g', g, g.t + ' ' + g.y, g.d); });
+    D.o.forEach(function (o) { add('outil', o, o.t, null); });
+  }
+  var lastTerm = '';
+  function renderSearch() {
+    if (views.search.dataset.ready) return;
+    views.search.dataset.ready = '1';
+    views.search.innerHTML = '<div class="col"><label class="s-field"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>' +
+      '<input id="q" type="search" placeholder="Rechercher : ténectéplase, TAVI, finérénone…" autocomplete="off" enterkeyhint="search"></label>' +
+      '<div class="chips wrap" id="sugg">' + ['sacubitril', 'cardioversion', 'prasugrel', 'ablation', 'bord à bord', 'fondaparinux', 'grossesse', 'relais'].map(function (s) { return '<button class="chip" data-q="' + s + '">' + s + '</button>'; }).join('') + '</div>' +
+      '<p class="s-count" id="s-count" hidden></p><ul class="hits" id="hits"></ul></div>';
+    var q = $('#q'), hits = $('#hits'), sc = $('#s-count'), sugg = $('#sugg');
+    function search() {
+      if (!idx) buildIndex();
+      var t = norm(q.value.trim()); sugg.hidden = !!t; hits.innerHTML = '';
+      if (t.length < 2) { sc.hidden = true; return; }
+      var by = {}, list = [];
+      idx.forEach(function (e) {
+        var i = e.n.indexOf(t); if (i === -1) return;
+        var c = 0, j = i; while (j !== -1) { c++; j = e.n.indexOf(t, j + 1); }
+        var a = Math.max(0, e.raw.lastIndexOf(' ', Math.max(0, i - 45))), b = Math.min(e.raw.length, i + t.length + 80);
+        var snip = (a > 0 ? '…' : '') + esc(e.raw.slice(a, i)) + '<mark>' + esc(e.raw.slice(i, i + t.length)) + '</mark>' + esc(e.raw.slice(i + t.length, b)) + (b < e.raw.length ? '…' : '');
+        var key = e.kind + e.id;
+        if (!by[key]) { by[key] = { e: e, total: 0, s: [] }; list.push(by[key]); }
+        by[key].total += c; by[key].s.push({ c: e.c, ct: e.ct, n: c, snip: snip });
+      });
+      list.sort(function (x, y) { return y.total - x.total; });
+      sc.hidden = false;
+      sc.textContent = list.length ? plural(list.length, 'document') : 'Aucun résultat. Essayez un mot plus court ou un synonyme.';
+      hits.innerHTML = list.map(function (r) {
+        r.s.sort(function (x, y) { return y.n - x.n; });
+        var pre = '#' + (r.e.kind === 'g' ? 'g-' : 'outil-') + r.e.id + '--';
+        return '<li class="hitcard" style="' + (r.e.dc ? dvars(r.e.dc) : '--fc:var(--accent)') + '"><strong class="hit-t">' + esc(r.e.t) + '</strong>' + r.s.slice(0, 4).map(function (s) {
+          return '<a class="hit" href="' + pre + s.c + '" data-term="' + esc(t) + '"><small>' + esc(s.ct) + '</small><p>' + s.snip + '</p></a>';
+        }).join('') + (r.s.length > 4 ? '<span class="hit-more">et ' + plural(r.s.length - 4, 'autre chapitre', 'autres chapitres') + '</span>' : '') + '</li>';
+      }).join('');
+    }
+    q.addEventListener('input', search);
+    hits.addEventListener('click', function (e) { var a = e.target.closest('a'); if (a) lastTerm = a.dataset.term; });
+    $$('#sugg .chip').forEach(function (b) { b.addEventListener('click', function () { q.value = b.dataset.q; search(); }); });
+  }
+
+  // ---------- outils ----------
+  function renderTools() {
+    var h = '<div class="col"><div class="head"><h1>Outils</h1><p>Guides pratiques, posologies et calculateurs. Rien n’est enregistré.</p></div>' +
+      '<h2 class="sect">Guides pratiques</h2><ul class="rows" style="--gc:var(--accent)">' + D.o.map(function (o) {
+        return '<li><a class="row" href="#outil-' + o.id + '"><span><strong>' + esc(o.t) + '</strong><span class="sub">' + esc(o.r || '') + '</span></span><span class="chev">›</span></a></li>';
+      }).join('') + '</ul>';
+    CALC_GROUPS.forEach(function (gr) {
+      h += '<h2 class="sect">' + gr[0] + '</h2><ul class="rows" style="--gc:var(--accent)">' + gr[1].filter(function (id) { return window.CALCS[id]; }).map(function (id) {
+        return '<li><a class="row" href="#calc-' + id + '"><span><strong>' + esc(window.CALCS[id].title) + '</strong></span><span class="chev">›</span></a></li>';
+      }).join('') + '</ul>';
+    });
+    views.tools.innerHTML = h + '</div>';
+  }
+  function renderCalc(id) {
+    var used = [];
+    D.g.concat(D.o).forEach(function (d) { d.ch.forEach(function (c) { if (c.h.indexOf('data-calc="' + id + '"') !== -1) used.push({ href: '#' + (G[d.id] ? 'g-' : 'outil-') + d.id + '--' + c.id, t: d.t + ' · ' + c.t }); }); });
+    views.calc.innerHTML = '<div class="col" style="--fc:var(--accent);--fcb:var(--accent-bg)"><div style="height:16px"></div><div class="calc" data-calc="' + id + '"></div>' +
+      (used.length ? '<div class="used"><h3>Dans les fiches</h3><div class="chips wrap">' + used.map(function (u) { return '<a class="chip" href="' + u.href + '">' + esc(u.t) + '</a>'; }).join('') + '</div></div>' : '') + '</div>';
+    window.mountCalcs(views.calc);
+  }
+
+  // ---------- entraînement : constructeur ----------
+  var B = store.get('build', { g: [], ch: '', k: ['qi', 'kfp', 'dp'], m: 'auto', c: 10 });
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function filtered(b) {
+    return D.q.filter(function (q) {
+      return (!b.g.length || b.g.indexOf(q.g) !== -1) && (!b.ch || (b.g.length === 1 && q.ch === b.ch) || b.g.length !== 1) && b.k.indexOf(q.k) !== -1;
+    });
+  }
+  function pool(b) {
+    var all = filtered(b), out;
+    if (b.m === 'revoir') out = all.filter(function (q) { return isDue(q.id); }).sort(function (x, y) { return srs[x.id].due - srs[y.id].due; });
+    else if (b.m === 'erreurs') out = shuffle(all.filter(function (q) { return srs[q.id] && srs[q.id].last < 0.7; }));
+    else if (b.m === 'hasard') out = shuffle(all);
+    else {
+      var due = all.filter(function (q) { return isDue(q.id); }).sort(function (x, y) { return srs[x.id].due - srs[y.id].due; });
+      out = due.concat(shuffle(all.filter(function (q) { return !srs[q.id]; })));
+    }
+    return out.map(function (q) { return q.id; });
+  }
+  function renderTrain() {
+    var all = D.q, seen = all.filter(function (q) { return srs[q.id]; }), mast = all.filter(function (q) { return srs[q.id] && srs[q.id].b >= 3; });
+    var avg = seen.length ? Math.round(seen.reduce(function (a, q) { return a + srs[q.id].last; }, 0) / seen.length * 100) : null;
+    var withQ = D.g.filter(function (g) { return qcount(g.id).length; });
+    var h = '<div class="col"><div class="head"><h1>Entraînement</h1><p>Dossiers progressifs, questions isolées et questions à réponses clés, notés comme aux épreuves dématérialisées.</p></div>' +
+      '<div class="stats"><div class="stat"><strong>' + all.length + '</strong><span>questions</span></div><div class="stat"><strong>' + seen.length + '</strong><span>vues</span></div>' +
+      '<div class="stat"><strong>' + mast.length + '</strong><span>maîtrisées</span></div><div class="stat"><strong>' + (avg === null ? '—' : avg + ' %') + '</strong><span>dernière note moyenne</span></div></div>' +
+      '<div class="builder"><div><h3>Recommandations</h3><div class="chips wrap" id="b-g"><button class="chip" data-v="" aria-pressed="' + (!B.g.length) + '">Toutes</button>' +
+      withQ.map(function (g) { return '<button class="chip" data-v="' + g.id + '" aria-pressed="' + (B.g.indexOf(g.id) !== -1) + '">' + esc(g.t) + ' <small>' + qcount(g.id).length + '</small></button>'; }).join('') + '</div></div>' +
+      '<div id="b-chw"></div>' +
+      '<div><h3>Type</h3><div class="chips wrap" id="b-k">' + ['dp', 'qi', 'kfp'].map(function (k) { return '<button class="chip" data-v="' + k + '" aria-pressed="' + (B.k.indexOf(k) !== -1) + '">' + { dp: 'Dossiers progressifs', qi: 'Questions isolées', kfp: 'Réponses clés' }[k] + '</button>'; }).join('') + '</div></div>' +
+      '<div><h3>Sélection</h3><div class="chips wrap" id="b-m">' + [['auto', 'À revoir puis nouvelles'], ['revoir', 'À revoir'], ['erreurs', 'Mes erreurs'], ['hasard', 'Toutes, au hasard']].map(function (m) { return '<button class="chip" data-v="' + m[0] + '" aria-pressed="' + (B.m === m[0]) + '">' + m[1] + '</button>'; }).join('') + '</div></div>' +
+      '<div><h3>Nombre</h3><div class="chips wrap" id="b-c">' + [5, 10, 20, 0].map(function (c) { return '<button class="chip" data-v="' + c + '" aria-pressed="' + (B.c === c) + '">' + (c || 'Toutes') + '</button>'; }).join('') + '</div></div>' +
+      '<button class="bigbtn" id="b-go" type="button"></button></div>';
+    var sess = store.get('sess', null);
+    if (sess && sess.i < sess.ids.length) h += '<a class="card-link" href="#session"><span><small>Session en cours</small><strong>Reprendre à la question ' + (sess.i + 1) + ' sur ' + sess.ids.length + '</strong></span><span class="go">→</span></a>';
+    h += '<h2 class="sect">Progression</h2><ul class="rows">' + withQ.map(function (g) {
+      var qs = qcount(g.id), s = qs.filter(function (q) { return srs[q.id]; }).length, m = qs.filter(function (q) { return srs[q.id] && srs[q.id].b >= 3; }).length, du = dueCount(qs);
+      return '<li style="' + dvars(g.d) + '"><div class="row"><span><strong>' + esc(g.t) + '</strong><span class="sub">' + s + ' vues sur ' + qs.length + ' · ' + m + ' maîtrisées' + (du ? ' · ' + du + ' à revoir' : '') + '</span><span class="prog"><i style="width:' + Math.round(s / qs.length * 100) + '%"></i></span></span><span></span></div></li>';
+    }).join('') + '</ul><p class="note">Notation : question à réponses multiples, 1 point sans discordance, 0,5 avec une, 0,2 avec deux, 0 au-delà ; question à réponse unique, tout ou rien ; réponses clés, proportion des bonnes réponses trouvées, 0 si une proposition dangereuse est cochée. Une question est revue à 1, 3, 7, 16 puis 35 jours tant qu’elle est réussie (note ≥ 70 %), et dès le lendemain sinon.</p>' +
+      '<button class="textbtn" id="b-reset" type="button">Remettre la progression à zéro</button></div>';
+    views.train.innerHTML = h;
+    function refresh() {
+      store.set('build', B);
+      var w = $('#b-chw');
+      if (B.g.length === 1) {
+        var g = G[B.g[0]], chs = g.ch.filter(function (c) { return D.q.some(function (q) { return q.g === g.id && q.ch === c.id; }); });
+        if (B.ch && !chs.some(function (c) { return c.id === B.ch; })) B.ch = '';
+        w.innerHTML = '<h3>Chapitre</h3><div class="chips wrap"><button class="chip" data-v="" aria-pressed="' + (!B.ch) + '">Tous</button>' + chs.map(function (c) {
+          return '<button class="chip" data-v="' + c.id + '" aria-pressed="' + (B.ch === c.id) + '">' + esc(c.t) + '</button>';
+        }).join('') + '</div>';
+        $$('.chip', w).forEach(function (b) { b.addEventListener('click', function () { B.ch = b.dataset.v; $$('.chip', w).forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); refresh(); }); });
+      } else { B.ch = ''; w.innerHTML = ''; }
+      var p = pool(B), n = B.c ? Math.min(B.c, p.length) : p.length, go = $('#b-go');
+      go.disabled = !n;
+      go.textContent = n ? 'Commencer · ' + plural(n, 'question') : (B.m === 'revoir' ? 'Rien à revoir aujourd’hui' : B.m === 'erreurs' ? 'Aucune erreur enregistrée' : 'Aucune question');
+    }
+    $$('#b-g .chip').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = b.dataset.v;
+        if (!v) B.g = []; else { var i = B.g.indexOf(v); if (i === -1) B.g.push(v); else B.g.splice(i, 1); }
+        $$('#b-g .chip').forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.v ? B.g.indexOf(x.dataset.v) !== -1 : !B.g.length)); });
+        refresh();
+      });
+    });
+    $$('#b-k .chip').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = b.dataset.v, i = B.k.indexOf(v);
+        if (i === -1) B.k.push(v); else if (B.k.length > 1) B.k.splice(i, 1);
+        $$('#b-k .chip').forEach(function (x) { x.setAttribute('aria-pressed', String(B.k.indexOf(x.dataset.v) !== -1)); });
+        refresh();
+      });
+    });
+    $$('#b-m .chip').forEach(function (b) { b.addEventListener('click', function () { B.m = b.dataset.v; $$('#b-m .chip').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); refresh(); }); });
+    $$('#b-c .chip').forEach(function (b) { b.addEventListener('click', function () { B.c = +b.dataset.v; $$('#b-c .chip').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); refresh(); }); });
+    $('#b-go').addEventListener('click', function () { var p = pool(B); startSession(B.c ? p.slice(0, B.c) : p); });
+    var armed = null;
+    $('#b-reset').addEventListener('click', function () {
+      var b = this;
+      if (!armed) { b.textContent = 'Toucher encore pour confirmer la remise à zéro'; armed = setTimeout(function () { armed = null; b.textContent = 'Remettre la progression à zéro'; }, 4000); return; }
+      clearTimeout(armed); armed = null; srs = {}; store.set('srs', srs); store.set('sess', null); updateDot(); renderTrain(); toast('<b>Progression effacée</b>');
+    });
+    refresh();
+  }
+  function trainOn(gid, chid) {
+    var b = { g: [gid], ch: chid, k: ['qi', 'kfp', 'dp'], m: 'hasard', c: 0 };
+    var p = pool(b); if (p.length) startSession(p);
+  }
+
+  // ---------- entraînement : session ----------
+  var S = null, it = null;
+  function startSession(ids) {
+    S = { ids: ids, i: 0, res: [] }; store.set('sess', S); it = null;
+    if (location.hash !== '#session') location.hash = '#session'; else renderSession();
+  }
+  function newItem(id) {
+    var q = Q[id], ord = {};
+    q.s.forEach(function (st, si) { st.qs.forEach(function (qq, qi) { ord[si + '-' + qi] = shuffle(qq.o.map(function (_, k) { return k; })); }); });
+    return { id: id, si: 0, qi: 0, ans: {}, sc: {}, ord: ord, fin: false };
+  }
+  function scoreQ(qq, sel) {
+    var nok = qq.o.filter(function (o) { return o.ok; }).length;
+    if (qq.f === 'qru') return { s: (sel.length === 1 && qq.o[sel[0]].ok) ? 1 : 0, txt: '' };
+    if (qq.f === 'menu') {
+      if (sel.some(function (k) { return qq.o[k].kill; })) return { s: 0, txt: 'proposition dangereuse cochée' };
+      var good = sel.filter(function (k) { return qq.o[k].ok; }).length;
+      return { s: good / nok, txt: good + ' bonne' + (good > 1 ? 's' : '') + ' réponse' + (good > 1 ? 's' : '') + ' sur ' + nok };
+    }
+    var dis = qq.o.reduce(function (a, o, k) { return a + ((sel.indexOf(k) !== -1) !== o.ok ? 1 : 0); }, 0);
+    return { s: dis === 0 ? 1 : dis === 1 ? 0.5 : dis === 2 ? 0.2 : 0, txt: dis === 0 ? 'aucune discordance' : plural(dis, 'discordance') };
+  }
+  function fmtSc(s) { return (Math.round(s * 100) / 100).toLocaleString('fr-FR'); }
+  function qHTML(q, si, qi, num) {
+    var qq = q.s[si].qs[qi], key = si + '-' + qi, done = key in it.sc, sel = it.ans[key] || [];
+    var type = qq.f === 'qru' ? 'radio' : 'checkbox';
+    var h = '<div class="qq' + (done ? ' done' : '') + '" data-key="' + key + '"><p class="qq-h">Question ' + num + ' · ' + FMT[qq.f] + (qq.f === 'menu' ? ' (' + qq.n + ' au maximum)' : '') + '</p><p class="qq-q">' + qq.q + '</p><ul class="opts">';
+    it.ord[key].forEach(function (k) {
+      var o = qq.o[k], on = sel.indexOf(k) !== -1, cls = '', tag = '';
+      if (done) {
+        if (on && o.ok) { cls = 'good'; tag = 'Juste'; }
+        else if (on && !o.ok) { cls = 'bad'; tag = o.kill ? 'Dangereuse' : 'Fausse'; }
+        else if (!on && o.ok) { cls = 'miss'; tag = 'Oubliée'; }
+        else cls = 'neutral';
+      }
+      h += '<li><label class="opt ' + cls + '"><input type="' + type + '" name="o' + key + '" value="' + k + '"' + (on ? ' checked' : '') + (done ? ' disabled' : '') + '><span class="ot">' +
+        (tag ? '<span class="tag">' + tag + '</span>' : '') + o.t + (done && o.kill && !on ? ' <span class="kill">· dangereuse</span>' : '') + (done && o.w ? '<span class="why">' + o.w + '</span>' : '') + '</span></label></li>';
+    });
+    h += '</ul>';
+    if (done) {
+      var r = it.sc[key];
+      h += '<div class="qq-sc"><strong>' + fmtSc(r.s) + ' / 1</strong><span>' + esc(r.txt) + '</span></div>' + (qq.e ? '<div class="qq-e"><b>À retenir.</b> ' + qq.e + '</div>' : '');
+    }
+    return h + '</div>';
+  }
+  function itemScore(q) { var a = [], k; for (k in it.sc) a.push(it.sc[k].s); return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : 0; }
+  function renderSession() {
+    if (!S) S = store.get('sess', null);
+    if (!S || !S.ids.length) { location.replace('#entrainement'); return; }
+    if (S.i >= S.ids.length) return renderEnd();
+    var id = S.ids[S.i], q = Q[id];
+    if (!q) { S.i++; store.set('sess', S); return renderSession(); }
+    if (!it || it.id !== id) it = newItem(id);
+    var g = G[q.g], ch = g ? g.ch.filter(function (c) { return c.id === q.ch; })[0] : null;
+    var h = '<div class="col" style="' + (g ? dvars(g.d) : '') + '"><div class="q-prog"><span>' + (S.i + 1) + ' / ' + S.ids.length + '</span><span class="prog"><i style="width:' + Math.round(S.i / S.ids.length * 100) + '%;background:var(--accent)"></i></span><button id="q-stop" type="button">Arrêter</button></div>' +
+      '<div class="q-card"><div class="q-meta"><span class="kb ' + q.k + '">' + KIND[q.k] + '</span><span>' + esc(g ? g.t : '') + (ch ? ' · ' + esc(ch.t) : '') + '</span></div>' +
+      (q.t ? '<h2 class="q-title">' + esc(q.t) + '</h2>' : '') + (q.v ? '<div class="q-vig">' + q.v + '</div>' : '');
+    var num = 0;
+    for (var si = 0; si <= it.si; si++) {
+      var st = q.s[si];
+      if (q.k === 'dp' && q.s.length > 1) h += '<div class="q-step"><b>Étape ' + (si + 1) + ' sur ' + q.s.length + '</b>' + (st.i || '') + '</div>';
+      else if (si > 0 && st.i) h += '<div class="q-step">' + st.i + '</div>';
+      var lastQ = si < it.si ? st.qs.length - 1 : it.qi;
+      for (var qi = 0; qi <= lastQ; qi++) h += qHTML(q, si, qi, ++num);
+    }
+    h += '</div><div class="q-actions"></div>';
+    if (it.fin) {
+      var s = itemScore(q);
+      h += '<div class="qq-e" style="margin-top:16px"><b>Note de la question : ' + Math.round(s * 100) + ' %.</b> ' + (s >= 0.7 ? 'Réussie : elle reviendra dans ' + IV[(srs[id] || { b: 1 }).b] + ' jour' + (IV[(srs[id] || { b: 1 }).b] > 1 ? 's' : '') + '.' : 'À retravailler : elle reviendra dès demain.') +
+        (g ? ' <a href="#g-' + g.id + '--' + q.ch + '">Revoir la fiche</a>' : '') + '</div>';
+    }
+    views.session.innerHTML = h + '</div>';
+    $('#q-stop').addEventListener('click', function () { S.ids = S.ids.slice(0, S.i); store.set('sess', S); it = null; renderEnd(); });
+    var act = $('.q-actions', views.session);
+    var curKey = it.si + '-' + it.qi, curDone = curKey in it.sc;
+    if (!curDone) {
+      var cq = q.s[it.si].qs[it.qi], box = $('.qq[data-key="' + curKey + '"]', views.session);
+      act.innerHTML = '<button class="bigbtn" id="q-ok" type="button" disabled>Valider</button>' + (cq.f === 'menu' ? '<p class="q-hint" id="q-hint">' + cq.n + ' réponse' + (cq.n > 1 ? 's' : '') + ' au maximum.</p>' : '');
+      box.addEventListener('change', function (e) {
+        var inputs = $$('input', box), chosen = inputs.filter(function (x) { return x.checked; });
+        if (cq.f === 'menu' && chosen.length > cq.n) { e.target.checked = false; chosen = inputs.filter(function (x) { return x.checked; }); toast('<b>' + cq.n + ' réponse' + (cq.n > 1 ? 's' : '') + ' au maximum</b>Décochez une proposition pour en choisir une autre.'); }
+        it.ans[curKey] = chosen.map(function (x) { return +x.value; });
+        $('#q-ok').disabled = !chosen.length;
+      });
+      $('#q-ok').addEventListener('click', function () {
+        it.sc[curKey] = scoreQ(cq, it.ans[curKey] || []);
+        var lastInStep = it.qi >= q.s[it.si].qs.length - 1, lastStep = it.si >= q.s.length - 1;
+        if (lastInStep && lastStep) { it.fin = true; var s = itemScore(q); record(id, s); S.res.push({ id: id, s: s }); store.set('sess', S); updateDot(); }
+        var y = window.scrollY; renderSession(); window.scrollTo(0, y);
+        var b = $('.qq[data-key="' + curKey + '"]', views.session); if (b) b.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
+    } else if (!it.fin) {
+      var lastIn = it.qi >= q.s[it.si].qs.length - 1;
+      act.innerHTML = '<button class="bigbtn" id="q-next" type="button">' + (lastIn ? 'Étape suivante' : 'Question suivante') + '</button>';
+      $('#q-next').addEventListener('click', function () {
+        if (lastIn) { it.si++; it.qi = 0; } else it.qi++;
+        renderSession();
+        var b = $('.qq[data-key="' + it.si + '-' + it.qi + '"]', views.session), stp = b && b.previousElementSibling;
+        (stp && stp.classList.contains('q-step') ? stp : b).scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
+    } else {
+      var end = S.i >= S.ids.length - 1;
+      act.innerHTML = '<button class="bigbtn" id="q-item" type="button">' + (end ? 'Voir le bilan' : 'Question suivante →') + '</button>';
+      $('#q-item').addEventListener('click', function () { S.i++; store.set('sess', S); it = null; renderSession(); window.scrollTo(0, 0); });
+    }
+    setBar('back', 'Entraînement');
+  }
+  function renderEnd() {
+    var res = S.res, n = res.length, avg = n ? res.reduce(function (a, r) { return a + r.s; }, 0) / n : 0;
+    var h = '<div class="col"><div class="endsc"><strong>' + (n ? Math.round(avg * 100) + ' %' : '—') + '</strong><span>' + (n ? plural(n, 'question') + ' · ' + res.filter(function (r) { return r.s >= 0.7; }).length + ' réussies' : 'Aucune question terminée') + '</span></div>' +
+      '<ul class="res-list">' + res.map(function (r) {
+        var q = Q[r.id], g = q && G[q.g], cl = r.s >= 0.7 ? 'hi' : r.s >= 0.4 ? 'mid' : 'lo';
+        return '<li><b class="' + cl + '">' + Math.round(r.s * 100) + '</b><span><strong>' + esc(q.t || KIND[q.k]) + '</strong><br><span style="font-size:.82rem;color:var(--muted)">' + KIND[q.k] + ' · ' + esc(g ? g.t : '') + '</span> · <a href="#g-' + q.g + '--' + q.ch + '">fiche</a></span></li>';
+      }).join('') + '</ul><div style="display:grid;gap:8px;margin-top:18px">';
+    var errs = res.filter(function (r) { return r.s < 0.7; }).map(function (r) { return r.id; });
+    if (errs.length) h += '<button class="bigbtn" id="e-err" type="button">Refaire les ' + plural(errs.length, 'erreur') + '</button>';
+    h += '<a class="bigbtn ghost" href="#entrainement" style="text-align:center;text-decoration:none">Nouvelle session</a></div></div>';
+    views.session.innerHTML = h;
+    var b = $('#e-err'); if (b) b.addEventListener('click', function () { startSession(shuffle(errs)); });
+    store.set('sess', null);
+    setBar('back', 'Bilan');
+  }
+
+  // ---------- routage ----------
+  $('#back').addEventListener('click', function (e) {
+    e.preventDefault();
+    if (current.view === 'calc') location.hash = '#outils';
+    else if (current.view === 'session') location.hash = '#entrainement';
+    else if (current.view === 'doc' && doc && doc.kind === 'outil' && listView !== 'search') location.hash = '#outils';
+    else location.hash = { search: '#recherche', tools: '#outils', train: '#entrainement' }[listView] || '#accueil';
+  });
+  function route() {
+    $('#toast').hidden = true;
+    var h = decodeURIComponent(location.hash.slice(1)), m;
+    if ((m = /^(g|outil)-(.+)$/.exec(h))) {
+      var parts = m[2].split('--'), kind = m[1], id = parts[0];
+      if ((kind === 'g' && G[id]) || (kind === 'outil' && O[id])) {
+        if (!doc || doc.kind !== kind || doc.id !== id || current.view !== 'doc') renderDoc(kind, id);
+        showView('doc', kind === 'outil' && listView === 'tools' ? 'tools' : undefined);
+        var term = lastTerm; lastTerm = '';
+        openPane(parts[1], term);
+        return;
+      }
+    }
+    if ((m = /^calc-(.+)$/.exec(h)) && window.CALCS[m[1]]) { renderCalc(m[1]); showView('calc'); setBar('back', 'Calculateur'); window.scrollTo(0, 0); return; }
+    if (h === 'session') { showView('session'); renderSession(); return; }
+    if (h === 'entrainement') { listView = 'train'; renderTrain(); showView('train'); setBar('top'); window.scrollTo(0, 0); return; }
+    if (h === 'recherche') { listView = 'search'; renderSearch(); showView('search'); setBar('top'); window.scrollTo(0, 0); setTimeout(function () { var q = $('#q'); if (q && !q.value) q.focus(); }, 60); return; }
+    if (h === 'outils') { listView = 'tools'; renderTools(); showView('tools'); setBar('top'); window.scrollTo(0, 0); return; }
+    listView = 'home'; renderHome(); showView('home'); setBar('top'); window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', route);
+  updateDot();
+  route();
+};
+
+/* ===================================================================
+   Verrou : le contenu (data/content.json) est chiffré en AES-256-GCM,
+   clé dérivée du mot de passe (PBKDF2-SHA256), puis gardée sur le téléphone.
+   =================================================================== */
+(function () {
+  var b64d = function (t) { var s = atob(t), a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; };
+  var b64e = function (buf) { var a = new Uint8Array(buf), t = ''; for (var i = 0; i < a.length; i++) t += String.fromCharCode(a[i]); return btoa(t); };
+  var KEYNAME = 'rc:key', DATA = null;
+  function lsGet() { try { return JSON.parse(localStorage.getItem(KEYNAME)); } catch (e) { return null; } }
+  function lsSet(v) { try { localStorage.setItem(KEYNAME, JSON.stringify(v)); } catch (e) {} }
+  window.lockApp = function () { try { localStorage.removeItem(KEYNAME); } catch (e) {} location.replace(location.pathname); };
+  function derive(pw, kdf) {
+    return crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']).then(function (base) {
+      return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64d(kdf.salt), iterations: kdf.iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
+    });
+  }
+  function decrypt(key) { return crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64d(DATA.iv) }, key, b64d(DATA.ct)).then(function (buf) { return new TextDecoder().decode(buf); }); }
+  function mount(txt) {
+    var data = JSON.parse(txt);
+    document.body.classList.remove('locked');
+    document.getElementById('lockscreen').hidden = true;
+    window.initApp(data);
+  }
+  function showLock(msg) {
+    document.body.classList.add('locked');
+    document.getElementById('lockscreen').hidden = false;
+    var err = document.getElementById('lock-err'); err.hidden = !msg; err.textContent = msg || '';
+  }
+  var form = document.getElementById('unlock'), btn = document.getElementById('unlock-btn');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var pw = document.getElementById('pw').value.trim();
+    if (!pw || !DATA) return;
+    btn.disabled = true; btn.textContent = 'Ouverture…';
+    derive(pw, DATA.kdf).then(function (key) {
+      return decrypt(key).then(function (txt) {
+        return crypto.subtle.exportKey('raw', key).then(function (raw) { lsSet({ salt: DATA.kdf.salt, k: b64e(raw) }); mount(txt); });
+      });
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = 'Ouvrir';
+      showLock('Mot de passe incorrect. Vérifiez les tirets et les minuscules.');
+    });
+  });
+  document.body.classList.add('locked');
+  fetch('data/content.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) {
+    DATA = d;
+    var st = lsGet();
+    if (!st || st.salt !== d.kdf.salt) return showLock();
+    return crypto.subtle.importKey('raw', b64d(st.k), { name: 'AES-GCM' }, true, ['decrypt']).then(decrypt).then(mount).catch(function () { showLock(); });
+  }).catch(function () { showLock('Impossible de charger le contenu. Vérifiez la connexion et rouvrez l’appli.'); });
+})();
+</script>
+<script>if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js'); }); }</script>
+</body>
+</html>

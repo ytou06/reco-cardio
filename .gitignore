@@ -1,0 +1,5 @@
+build/
+src/
+pdf-txt/
+private/
+*.pdf

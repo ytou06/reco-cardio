@@ -799,6 +799,90 @@ body.locked .bar, body.locked .tabbar{display:none}
   };
 
 
+  C['htp-echo'] = {
+    title: 'Probabilité échocardiographique d’hypertension pulmonaire (2022)',
+    form: function (p) {
+      return radio(p, 'v', 'Vitesse maximale de l’insuffisance tricuspide', [['a', '≤ 2,8 m/s ou non mesurable'], ['b', '2,9 à 3,4 m/s'], ['c', '> 3,4 m/s']]) +
+        sub('Autres signes échographiques (au moins deux catégories parmi ventricules, artère pulmonaire, veine cave et oreillette droite)') +
+        '<div class="c-list">' + chk(p, 's', 'Signes indirects présents') + '</div>';
+    },
+    calc: function (v) {
+      var r;
+      if (v.v === 'c' || (v.v === 'b' && v.s)) r = ['hi', 'Probabilité élevée', 'Cathétérisme cardiaque droit si les résultats changent la prise en charge ; orientation vers un centre expert si hypertension artérielle pulmonaire ou thromboembolique suspectée, ou signes de gravité.'];
+      else if (v.v === 'b' || v.s) r = ['mid', 'Probabilité intermédiaire', 'Poursuivre selon le contexte (symptômes, facteurs de risque d’hypertension artérielle pulmonaire ou thromboembolique) ; épreuve d’effort cardiorespiratoire envisageable (IIb C).'];
+      else r = ['lo', 'Probabilité faible', 'Rechercher un autre diagnostic ; suivi échographique si facteurs de risque.'];
+      return out(r[0], r[1], r[2]) +
+        '<p class="c-n">Signes indirects : rapport ventricule droit/ventricule gauche > 1, septum aplati (index d’excentricité > 1,1), TAPSE/pression artérielle pulmonaire systolique < 0,55 mm/mmHg ; temps d’accélération pulmonaire < 105 ms ou encoche mésosystolique, vitesse protodiastolique de l’insuffisance pulmonaire > 2,2 m/s, diamètre de l’artère pulmonaire > celui de l’aorte ou > 25 mm ; veine cave inférieure > 21 mm peu compliante, surface de l’oreillette droite > 18 cm².</p>';
+    }
+  };
+
+  C['htp-risque'] = {
+    title: 'Risque de l’hypertension artérielle pulmonaire : modèle à 4 niveaux (suivi)',
+    form: function (p) {
+      return radio(p, 'f', 'Classe fonctionnelle (OMS)', [['1', 'I ou II', 1], ['3', 'III', 3], ['4', 'IV', 4]]) +
+        radio(p, 'm', 'Distance de marche en 6 minutes', [['1', '> 440 m', 1], ['2', '320 à 440 m', 2], ['3', '165 à 319 m', 3], ['4', '< 165 m', 4]]) +
+        radio(p, 'b', 'BNP ou NT-proBNP', [['1', 'BNP < 50 ou NT-proBNP < 300 ng/L', 1], ['2', 'BNP 50–199 ou NT-proBNP 300–649', 2], ['3', 'BNP 200–800 ou NT-proBNP 650–1 100', 3], ['4', 'BNP > 800 ou NT-proBNP > 1 100', 4]]);
+    },
+    calc: function (v) {
+      var s = (+v.f + +v.m + +v.b) / 3, k = Math.min(4, Math.ceil(s - 1e-9));
+      var R = { 1: ['lo', 'Risque faible', 'Mortalité à 1 an 0–3 %. Objectif thérapeutique atteint : poursuivre le traitement.'],
+        2: ['mid', 'Intermédiaire-faible', 'Mortalité à 1 an 2–7 %. Sous antagoniste des récepteurs de l’endothéline + inhibiteur de la phosphodiestérase 5 : ajouter le sélexipag (IIa B) ou remplacer l’inhibiteur de la phosphodiestérase 5 par le riociguat (IIb B).'],
+        3: ['hi', 'Intermédiaire-élevé', 'Mortalité à 1 an 9–19 %. Ajouter une prostacycline intraveineuse ou sous-cutanée et évaluer pour une transplantation pulmonaire (IIa C).'],
+        4: ['hi', 'Risque élevé', 'Mortalité à 1 an > 20 %. Prostacycline intraveineuse ou sous-cutanée et évaluation pour transplantation pulmonaire (IIa C).'] }[k];
+      return out(R[0], R[1] + ' <small>(moyenne ' + fmt(s, 2) + ')</small>', R[2]) +
+        '<p class="c-n">Moyenne des points arrondie à l’entier supérieur. Au diagnostic, utiliser le modèle à 3 niveaux (avec l’hémodynamique) ; ce modèle à 4 niveaux sert au suivi (I B).</p>';
+    }
+  };
+
+  C.ips = {
+    title: 'Index de pression systolique cheville-bras',
+    form: function (p) {
+      return '<div class="c-grid">' + num(p, 'bd', 'Pression systolique bras droit', 'mmHg') + num(p, 'bg', 'Pression systolique bras gauche', 'mmHg') +
+        num(p, 'c', 'Pression systolique de cheville (pédieuse ou tibiale postérieure, la plus haute du côté étudié)', 'mmHg') + '</div>';
+    },
+    calc: function (v) {
+      var bd = n(v.bd), bg = n(v.bg), c = n(v.c);
+      if (c === null || (bd === null && bg === null)) return out('', '—', 'Renseignez au moins une pression humérale et la pression de cheville.');
+      var b = Math.max(bd || 0, bg || 0), r = c / b, t;
+      if (r > 1.4) t = ['mid', 'Artères incompressibles', 'Index > 1,40 : mesurer la pression d’orteil, l’index orteil-bras ou analyser les courbes Doppler (I B).'];
+      else if (r <= 0.9) t = ['hi', 'Artériopathie', 'Index ≤ 0,90 : artériopathie des membres inférieurs (I B), marqueur de risque cardiovasculaire élevé.'];
+      else t = ['lo', 'Normal', 'Index 0,91–1,40. Si diabète ou insuffisance rénale : pression d’orteil ou index orteil-bras (I C).'];
+      var diff = (bd !== null && bg !== null) ? Math.abs(bd - bg) : null;
+      return out(t[0], fmt(r, 2) + ' <small>' + t[1] + '</small>', t[2]) +
+        '<p class="c-n">Calcul : pression de cheville / pression humérale la plus haute des deux bras, pour chaque jambe.' + (diff !== null && diff > 10 ? ' Différence entre les bras de ' + diff + ' mmHg : évoquer une sténose sous-clavière (> 10–15 mmHg).' : '') + '</p>';
+    }
+  };
+
+  C['add-rs'] = {
+    title: 'Score ADD-RS (probabilité de syndrome aortique aigu)',
+    form: function (p) {
+      return sub('Terrain à haut risque') + '<div class="c-list">' + chk(p, 't', 'Marfan, histoire familiale de maladie aortique, valvulopathie aortique connue, geste aortique récent ou anévrisme connu') + '</div>' +
+        sub('Douleur à haut risque') + '<div class="c-list">' + chk(p, 'd', 'Douleur thoracique, dorsale ou abdominale brutale, intense ou déchirante') + '</div>' +
+        sub('Examen à haut risque') + '<div class="c-list">' + chk(p, 'e', 'Instabilité hémodynamique, déficit de pouls ou asymétrie tensionnelle, déficit neurologique focal, souffle d’insuffisance aortique nouveau') + '</div>';
+    },
+    calc: function (v) {
+      var s = (v.t ? 1 : 0) + (v.d ? 1 : 0) + (v.e ? 1 : 0);
+      if (s >= 2) return out('hi', s + ' <small>points · haut risque</small>', 'Scanner du cou au pelvis sans délai et/ou échocardiographie transthoracique ciblée, électrocardiogramme.');
+      return out(s ? 'mid' : 'lo', s + ' <small>point' + (s > 1 ? 's' : '') + ' · faible risque</small>', 'Électrocardiogramme (éliminer un infarctus avec sus-décalage), radiographie, biologie avec D-dimères, échographie au lit si disponible ; scanner si l’un est positif, sinon envisager un autre diagnostic.');
+    }
+  };
+
+  C.rcri = {
+    title: 'Index de risque cardiaque révisé (Lee)',
+    form: function (p) {
+      return '<div class="c-list">' + chk(p, 'a', 'Chirurgie à haut risque (intrapéritonéale, intrathoracique, vasculaire sus-inguinale)', 1) +
+        chk(p, 'b', 'Cardiopathie ischémique', 1) + chk(p, 'c', 'Antécédent d’insuffisance cardiaque', 1) + chk(p, 'd', 'Maladie cérébrovasculaire', 1) +
+        chk(p, 'e', 'Diabète traité par insuline', 1) + chk(p, 'f', 'Créatinine > 177 µmol/L (2 mg/dL)', 1) + '</div>';
+    },
+    calc: function (v) {
+      var s = ['a', 'b', 'c', 'd', 'e', 'f'].filter(function (k) { return v[k]; }).length;
+      var r = ['0,4 %', '0,9 %', '6,6 %', '11 %'][Math.min(s, 3)];
+      var cf = ['b', 'c', 'd', 'e', 'f'].filter(function (k) { return v[k]; }).length;
+      return out(s >= 2 ? 'hi' : s === 1 ? 'mid' : 'lo', s + ' <small>point' + (s > 1 ? 's' : '') + '</small>', 'Complications cardiaques majeures ≈ ' + r + ' (cohorte de dérivation de Lee, 1999).') +
+        '<p class="c-n">Facteurs de risque cliniques (hors type de chirurgie) : ' + cf + '. Les recommandations 2022 utilisent ces facteurs pour définir le risque clinique (imagerie de stress, introduction d’un bêtabloquant si ≥ 2 facteurs avant chirurgie à haut risque, IIb A).</p>';
+    }
+  };
+
   C['duke-esc'] = {
     title: 'Critères diagnostiques de l’endocardite (2023)',
     form: function (p) {
@@ -1055,8 +1139,10 @@ window.initApp = function (D) {
     ['Insuffisance cardiaque et péricarde', ['h2fpef', 'scai', 'peri-doses']],
     ['Valves et endocardite', ['surface-ao', 'inr-valve', 'duke-esc']],
     ['Embolie pulmonaire', ['geneve', 'wells', 'pesi', 'ep-risque']],
+    ['Hypertension pulmonaire', ['htp-echo', 'htp-risque']],
+    ['Artères et aorte', ['ips', 'add-rs']],
     ['Rythmologie héréditaire et cardiomyopathies', ['qtc', 'schwartz', 'shanghai', 'hcmrisk', 'taskforce', 'amylose']],
-    ['Grossesse', ['carpreg']],
+    ['Chirurgie et grossesse', ['rcri', 'carpreg']],
     ['Rein', ['cockcroft']]
   ];
   var CLS = { I: 'Classe I : recommandé, indiqué', IIa: 'Classe IIa : doit être envisagé', IIb: 'Classe IIb : peut être envisagé', III: 'Classe III : non recommandé (inutile ou dangereux)' };

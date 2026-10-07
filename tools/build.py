@@ -363,8 +363,17 @@ def main():
         if q["id"] in seen:
             ERR.append(f"question en double : {q['id']}")
         seen.add(q["id"])
-    # liens internes
+    # liens internes vers des recommandations du catalogue pas encore rédigées : affichés « à venir »
     allg = {g["id"]: g for g in guides}
+    catids = {x.get("id") for x in cat["liste"] if x.get("id")}
+    def soon(m):
+        gid = m.group(1).split("--")[0]
+        if gid in allg or gid not in catids:
+            return m.group(0)
+        return f'<span class="xref soon">{m.group(2)} · à venir</span>'
+    for d in guides + outils:
+        for c in d["ch"]:
+            c["h"] = re.sub(r'<a class="xref" href="#g-([\w\-]+)">(.*?)</a>', soon, c["h"])
     tools = {o["id"] for o in outils}
     blob = json.dumps([g["ch"] for g in guides] + [o["ch"] for o in outils], ensure_ascii=False)
     for t in re.findall(r'href=\\"#outil-([\w\-]+)\\"', blob):

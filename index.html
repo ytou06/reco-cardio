@@ -170,6 +170,8 @@ details > div{padding:0 16px 14px} details > div > * + *{margin-top:.6rem}
   border:1px solid var(--line); text-decoration:none; font-size:.94rem; font-weight:500}
 .xref::after{content:"→"; color:var(--fc)}
 .xref.ext::after{content:"↗"}
+.xref.soon{color:var(--muted); font-weight:400}
+.xref.soon::after{content:""}
 .pane a:not(.xref):not(.chip){color:var(--fc)}
 
 /* recommandations et classes */
@@ -682,6 +684,166 @@ body.locked .bar, body.locked .tabbar{display:none}
     }
   };
 
+
+  C.rfcl = {
+    title: 'Probabilité clinique de coronaropathie obstructive (modèle RF-CL, 2024)',
+    form: function (p) {
+      return radio(p, 'sy', 'Symptôme principal', [['d', 'Douleur thoracique'], ['y', 'Dyspnée d’effort (2 points)']]) +
+        '<div class="c-list">' + chk(p, 's1', 'Douleur constrictive rétrosternale, ou du cou, de la mâchoire, de l’épaule ou du bras', 1) +
+        chk(p, 's2', 'Aggravée par l’effort ou le stress émotionnel', 1) + chk(p, 's3', 'Soulagée par le repos ou les dérivés nitrés en moins de 5 minutes', 1) + '</div>' +
+        sub('Facteurs de risque') + '<div class="c-list">' + chk(p, 'f1', 'Antécédent familial de coronaropathie précoce (homme < 55 ans, femme < 65 ans, 1er degré)') +
+        chk(p, 'f2', 'Tabagisme actuel ou ancien') + chk(p, 'f3', 'Dyslipidémie') + chk(p, 'f4', 'Hypertension') + chk(p, 'f5', 'Diabète') + '</div>' +
+        '<div class="c-grid">' + num(p, 'age', 'Âge', 'ans', 'min="30" max="80"') + '</div>' + sexe(p);
+    },
+    calc: function (v) {
+      var age = n(v.age);
+      if (age === null) return out('', '—', 'Renseignez les symptômes, les facteurs de risque, l’âge et le sexe.');
+      var ss = v.sy === 'y' ? 2 : (v.s1 ? 1 : 0) + (v.s2 ? 1 : 0) + (v.s3 ? 1 : 0);
+      var g = ss <= 1 ? 0 : ss === 2 ? 1 : 2;
+      var rf = ['f1', 'f2', 'f3', 'f4', 'f5'].filter(function (k) { return v[k]; }).length, r = rf <= 1 ? 0 : rf <= 3 ? 1 : 2;
+      var a = Math.max(0, Math.min(4, Math.floor((Math.max(30, Math.min(80, age)) - 30) / 10)));
+      if (age >= 80) a = 4;
+      var T = [
+        [[0, 1, 2, 1, 2, 5, 0, 1, 3, 2, 4, 8, 2, 5, 10, 9, 14, 22]],
+        [[1, 1, 3, 2, 4, 8, 1, 2, 5, 3, 6, 12, 4, 7, 12, 14, 20, 27]],
+        [[1, 2, 5, 4, 7, 12, 2, 3, 7, 6, 11, 17, 6, 10, 15, 21, 27, 33]],
+        [[2, 4, 7, 8, 12, 17, 3, 6, 11, 12, 17, 25, 10, 14, 19, 32, 35, 39]],
+        [[4, 7, 11, 15, 19, 24, 6, 10, 16, 22, 27, 34, 16, 19, 23, 44, 44, 45]]];
+      var val = T[a][0][g * 6 + (v.sexe === 'f' ? 0 : 3) + r];
+      var cat = val <= 5 ? ['lo', 'Très faible (≤ 5 %) : différer les examens (IIa B), sauf autre argument.']
+        : val <= 15 ? ['mid', 'Faible (5–15 %) : score calcique pour reclasser (IIa B) ; coroscanner si un examen est nécessaire.']
+          : ['hi', 'Modérée (15–50 %) : coroscanner (probabilité ≤ 50 %) ou imagerie fonctionnelle de stress.'];
+      var warn = (age < 30 || age > 80) ? '<p class="c-n warn">Modèle établi entre 30 et 80 ans.</p>' : '';
+      return out(cat[0], val + ' % <small>probabilité clinique</small>', cat[1]) +
+        '<p class="c-n">Score de symptômes ' + ss + ' ; ' + rf + ' facteur' + (rf > 1 ? 's' : '') + ' de risque. À ajuster ensuite : artériopathie, électrocardiogramme ou échocardiographie anormaux, calcifications déjà connues augmentent la probabilité. Au-delà de 50 % (après ajustement) : imagerie fonctionnelle ; au-delà de 85 % : coronarographie d’emblée.</p>' + warn;
+    }
+  };
+
+
+  C.geneve = {
+    title: 'Score de Genève révisé (probabilité clinique d’embolie pulmonaire)',
+    form: function (p) {
+      return '<div class="c-list">' + chk(p, 'a', 'Antécédent de thrombose veineuse ou d’embolie', '3 · 1') +
+        chk(p, 'b', 'Chirurgie ou fracture dans le mois', '2 · 1') + chk(p, 'c', 'Cancer actif', '2 · 1') +
+        chk(p, 'd', 'Douleur unilatérale d’un membre inférieur', '3 · 1') + chk(p, 'e', 'Hémoptysie', '2 · 1') +
+        chk(p, 'f', 'Douleur à la palpation veineuse profonde et œdème unilatéral', '4 · 1') + chk(p, 'g', 'Âge > 65 ans', '1 · 1') + '</div>' +
+        radio(p, 'fc', 'Fréquence cardiaque', [['0', 'Moins de 75/min', '0 · 0'], ['1', '75 à 94/min', '3 · 1'], ['2', '95/min ou plus', '5 · 2']]) +
+        '<div class="c-grid">' + num(p, 'age', 'Âge (pour le seuil des D-dimères, facultatif)', 'ans') + '</div>';
+    },
+    calc: function (v) {
+      var o = (v.a ? 3 : 0) + (v.b ? 2 : 0) + (v.c ? 2 : 0) + (v.d ? 3 : 0) + (v.e ? 2 : 0) + (v.f ? 4 : 0) + (v.g ? 1 : 0) + [0, 3, 5][+v.fc || 0];
+      var s = ['a', 'b', 'c', 'd', 'e', 'f', 'g'].filter(function (k) { return v[k]; }).length + [0, 1, 2][+v.fc || 0];
+      var cat = s >= 5 ? ['hi', 'Probabilité élevée'] : s >= 2 ? ['mid', 'Probabilité intermédiaire'] : ['lo', 'Probabilité faible'];
+      var two = s >= 3 ? 'embolie « probable » : angioscanner d’emblée' : 'embolie « peu probable » : D-dimères d’abord';
+      var age = n(v.age), dd = age !== null && age > 50 ? '<p class="c-n">Seuil des D-dimères ajusté à l’âge : ' + fmt(age * 10) + ' µg/L (IIa B).</p>' : '';
+      return out(cat[0], s + ' <small>points (version simplifiée)</small>', cat[1] + ' ; ' + two + '.') +
+        '<p class="c-n">Version originale : ' + o + ' points (0–3 faible, 4–10 intermédiaire, ≥ 11 élevée ; ≤ 5 peu probable). Version simplifiée : 0–1 faible, 2–4 intermédiaire, ≥ 5 élevée ; ≤ 2 peu probable. Les points affichés sont « originale · simplifiée ».</p>' + dd;
+    }
+  };
+
+  C.wells = {
+    title: 'Score de Wells (probabilité clinique d’embolie pulmonaire)',
+    form: function (p) {
+      return '<div class="c-list">' + chk(p, 'a', 'Signes cliniques de thrombose veineuse profonde', '3 · 1') +
+        chk(p, 'b', 'Diagnostic alternatif moins probable que l’embolie', '3 · 1') + chk(p, 'c', 'Fréquence cardiaque > 100/min', '1,5 · 1') +
+        chk(p, 'd', 'Immobilisation ≥ 3 jours ou chirurgie dans les 4 semaines', '1,5 · 1') + chk(p, 'e', 'Antécédent de thrombose veineuse ou d’embolie', '1,5 · 1') +
+        chk(p, 'f', 'Hémoptysie', '1 · 1') + chk(p, 'g', 'Cancer actif', '1 · 1') + '</div>';
+    },
+    calc: function (v) {
+      var o = (v.a ? 3 : 0) + (v.b ? 3 : 0) + (v.c ? 1.5 : 0) + (v.d ? 1.5 : 0) + (v.e ? 1.5 : 0) + (v.f ? 1 : 0) + (v.g ? 1 : 0);
+      var s = ['a', 'b', 'c', 'd', 'e', 'f', 'g'].filter(function (k) { return v[k]; }).length;
+      var cat = o >= 7 ? ['hi', 'Probabilité élevée'] : o >= 2 ? ['mid', 'Probabilité intermédiaire'] : ['lo', 'Probabilité faible'];
+      var two = o > 4 ? 'embolie « probable » : angioscanner d’emblée' : 'embolie « peu probable » : D-dimères d’abord';
+      return out(cat[0], fmt(o, o % 1 ? 1 : 0) + ' <small>points</small>', cat[1] + ' (0–1 faible, 2–6 intermédiaire, ≥ 7 élevée) ; ' + two + ' (seuil > 4).') +
+        '<p class="c-n">Version simplifiée : ' + s + ' point' + (s > 1 ? 's' : '') + ' ; ≤ 1 peu probable, ≥ 2 probable.</p>';
+    }
+  };
+
+  C.pesi = {
+    title: 'PESI et sPESI (gravité de l’embolie pulmonaire)',
+    form: function (p) {
+      return '<div class="c-grid">' + num(p, 'age', 'Âge', 'ans', 'min="18" max="110"') + '</div>' + sexe(p) +
+        '<div class="c-list">' + chk(p, 'k', 'Cancer') + chk(p, 'ic', 'Insuffisance cardiaque chronique') + chk(p, 'bp', 'Maladie pulmonaire chronique') +
+        chk(p, 'fc', 'Fréquence cardiaque ≥ 110/min') + chk(p, 'pa', 'Pression systolique < 100 mmHg') + chk(p, 'fr', 'Fréquence respiratoire > 30/min') +
+        chk(p, 't', 'Température < 36 °C') + chk(p, 'm', 'Altération de la conscience') + chk(p, 'sa', 'Saturation artérielle < 90 %') + '</div>';
+    },
+    calc: function (v) {
+      var age = n(v.age);
+      if (age === null) return out('', '—', 'Renseignez l’âge.');
+      var p = age + (v.sexe === 'h' ? 10 : 0) + (v.k ? 30 : 0) + (v.ic ? 10 : 0) + (v.bp ? 10 : 0) + (v.fc ? 20 : 0) + (v.pa ? 30 : 0) + (v.fr ? 20 : 0) + (v.t ? 20 : 0) + (v.m ? 60 : 0) + (v.sa ? 20 : 0);
+      var cl = p <= 65 ? 'I' : p <= 85 ? 'II' : p <= 105 ? 'III' : p <= 125 ? 'IV' : 'V';
+      var mort = { I: '0–1,6 %', II: '1,7–3,5 %', III: '3,2–7,1 %', IV: '4,0–11,4 %', V: '10,0–24,5 %' }[cl];
+      var sp = (age > 80 ? 1 : 0) + (v.k ? 1 : 0) + ((v.ic || v.bp) ? 1 : 0) + (v.fc ? 1 : 0) + (v.pa ? 1 : 0) + (v.sa ? 1 : 0);
+      var lo = (cl === 'I' || cl === 'II');
+      return out(lo ? 'lo' : 'mid', 'Classe ' + cl + ' <small>(' + p + ' points)</small>', 'Mortalité à 30 jours ' + mort + '. sPESI : ' + sp + (sp ? ' (≥ 1 : risque au moins intermédiaire)' : ' (0 : risque faible si pas de dysfonction ventriculaire droite ni troponine élevée)') + '.') +
+        '<p class="c-n">Classes I–II ou sPESI 0 : candidat au risque faible. Classes III–V ou sPESI ≥ 1 : risque intermédiaire, à préciser par l’imagerie du ventricule droit et la troponine.</p>';
+    }
+  };
+
+  C['ep-risque'] = {
+    title: 'Niveau de risque de l’embolie pulmonaire (classification 2019)',
+    form: function (p) {
+      return '<div class="c-list">' + chk(p, 'hi', 'Instabilité hémodynamique (arrêt cardiaque, choc obstructif, hypotension persistante)') +
+        chk(p, 'cl', 'PESI III–V ou sPESI ≥ 1') + chk(p, 'vd', 'Dysfonction ventriculaire droite (échocardiographie ou angioscanner)') + chk(p, 'tn', 'Troponine élevée') + '</div>';
+    },
+    calc: function (v) {
+      if (v.hi) return out('hi', 'Risque élevé', 'Héparine non fractionnée, thrombolyse (I B) ; embolectomie ou traitement par cathéter si contre-indication ou échec.');
+      if (v.vd && v.tn) return out('hi', 'Intermédiaire-élevé', 'Anticoagulation, surveillance rapprochée (soins intensifs) ; thrombolyse de sauvetage si dégradation (I B). Pas de thrombolyse systématique (III B).' + (v.cl ? '' : ' Classé intermédiaire-élevé même avec un sPESI à 0 quand ventricule droit et troponine sont anormaux.'));
+      if (v.cl || v.vd || v.tn) return out('mid', 'Intermédiaire-faible', 'Anticoagulation, hospitalisation ; pas de reperfusion de première intention.');
+      return out('lo', 'Risque faible', 'Sortie précoce et traitement à domicile envisageables (IIa A) si suivi et observance assurés.');
+    }
+  };
+
+
+  C['duke-esc'] = {
+    title: 'Critères diagnostiques de l’endocardite (2023)',
+    form: function (p) {
+      return sub('Critères majeurs') + '<div class="c-list">' +
+        chk(p, 'M1', 'Hémocultures : germe typique dans 2 hémocultures séparées, ou germe compatible avec hémocultures positives de façon persistante, ou <i>Coxiella burnetii</i>') +
+        chk(p, 'M2', 'Imagerie : lésion caractéristique en échocardiographie, scanner cardiaque, tomographie par émission de positons ou scintigraphie aux leucocytes') + '</div>' +
+        sub('Critères mineurs') + '<div class="c-list">' +
+        chk(p, 'm1', 'Prédisposition : cardiopathie à risque élevé ou intermédiaire, drogues intraveineuses') + chk(p, 'm2', 'Fièvre > 38 °C') +
+        chk(p, 'm3', 'Phénomènes vasculaires : emboles, infarctus, abcès, spondylodiscite, anévrisme mycotique, lésions cérébrales, hémorragies conjonctivales, Janeway (imagerie comprise)') +
+        chk(p, 'm4', 'Phénomènes immunologiques : glomérulonéphrite, Osler, Roth, facteur rhumatoïde') +
+        chk(p, 'm5', 'Microbiologie : hémoculture positive hors critère majeur, ou sérologie compatible') + '</div>';
+    },
+    calc: function (v) {
+      var M = (v.M1 ? 1 : 0) + (v.M2 ? 1 : 0), m = ['m1', 'm2', 'm3', 'm4', 'm5'].filter(function (k) { return v[k]; }).length;
+      var r;
+      if (M >= 2 || (M === 1 && m >= 3) || m >= 5) r = ['hi', 'Endocardite certaine'];
+      else if ((M === 1 && m >= 1) || m >= 3) r = ['mid', 'Endocardite possible'];
+      else r = ['lo', 'Critères non remplis'];
+      return out(r[0], r[1], M + ' majeur' + (M > 1 ? 's' : '') + ', ' + m + ' mineur' + (m > 1 ? 's' : '') + '. Certaine : 2 majeurs, 1 majeur + 3 mineurs, ou 5 mineurs. Possible : 1 majeur + 1–2 mineurs, ou 3–4 mineurs.') +
+        (r[0] === 'mid' ? '<p class="c-n">Endocardite possible : refaire hémocultures et échocardiographie à 5–7 jours, scanner cardiaque (valve native), tomographie par émission de positons (prothèse), imagerie cérébrale et corps entier pour ajouter des critères.</p>' : '');
+    }
+  };
+
+
+  C['peri-doses'] = {
+    title: 'Doses dans la péricardite (2025)',
+    form: function (p) {
+      return '<div class="c-grid">' + num(p, 'w', 'Poids', 'kg', 'min="20" max="250"') + num(p, 'dfg', 'Débit de filtration (facultatif)', 'mL/min') + '</div>' +
+        radio(p, 'ep', 'Situation', [['1', 'Premier épisode'], ['r', 'Récidive ou forme incessante']]);
+    },
+    calc: function (v) {
+      var w = n(v.w);
+      if (!w) return out('', '—', 'Saisissez le poids.');
+      var dfg = n(v.dfg), ir = dfg !== null && dfg < 30;
+      var col = (w < 70 || ir) ? '0,5 mg une fois par jour' : '0,5 mg deux fois par jour';
+      var rec = v.ep === 'r';
+      var rows = [
+        ['Colchicine', col + (rec ? ', au moins 6 mois' : ', 3 mois')],
+        ['Aspirine', '750–1 000 mg × 3/j, 1–2 semaines, puis −250 mg toutes les 1–2 semaines'],
+        ['Ibuprofène', '600–800 mg × 3/j, 1–2 semaines, puis −200 mg toutes les 1–2 semaines'],
+        ['Indométacine', '25–50 mg × 3/j (plutôt formes incessantes ou récidivantes)'],
+        ['Prednisone (2e intention)', fmt(0.2 * w) + '–' + fmt(0.5 * w) + ' mg/j (0,2–0,5 mg/kg), décroissance lente'],
+        ['Anakinra (récidive)', fmt(Math.min(100, w)) + '–' + fmt(Math.min(100, 2 * w)) + ' mg/j (1–2 mg/kg, maximum 100 mg), au moins 6 mois']
+      ];
+      return out('', 'Colchicine ' + col, 'Associer un inhibiteur de la pompe à protons aux anti-inflammatoires. Doses maintenues jusqu’à disparition des symptômes et normalisation de la CRP, puis décroissance.') + tbl(rows) +
+        (ir ? '<p class="c-n warn">Insuffisance rénale sévère : colchicine à dose réduite, prudence, avis spécialisé ; éviter les anti-inflammatoires non stéroïdiens.</p>' : '');
+    }
+  };
+
   function mount(el) {
     var c = C[el.dataset.calc];
     if (!c || el.dataset.ready) return;
@@ -727,9 +889,10 @@ window.initApp = function (D) {
   var FMT = { qrm: 'Plusieurs réponses possibles', qru: 'Une seule réponse', menu: 'Réponses clés' };
   var CALC_GROUPS = [
     ['Rythmologie', ['cha2ds2va', 'hasbled', 'aod']],
-    ['Maladie coronaire', ['grace-lien', 'archbr', 'doses-sca']],
-    ['Insuffisance cardiaque', ['h2fpef', 'scai']],
-    ['Valves', ['surface-ao', 'inr-valve']],
+    ['Maladie coronaire', ['rfcl', 'grace-lien', 'archbr', 'doses-sca']],
+    ['Insuffisance cardiaque et péricarde', ['h2fpef', 'scai', 'peri-doses']],
+    ['Valves et endocardite', ['surface-ao', 'inr-valve', 'duke-esc']],
+    ['Embolie pulmonaire', ['geneve', 'wells', 'pesi', 'ep-risque']],
     ['Rein', ['cockcroft']]
   ];
   var CLS = { I: 'Classe I : recommandé, indiqué', IIa: 'Classe IIa : doit être envisagé', IIb: 'Classe IIb : peut être envisagé', III: 'Classe III : non recommandé (inutile ou dangereux)' };

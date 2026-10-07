@@ -883,6 +883,56 @@ body.locked .bar, body.locked .tabbar{display:none}
     }
   };
 
+  C['ldl-strategie'] = {
+    title: 'Hypolipémiant : catégorie de risque et indication (2025)',
+    form: function (p) {
+      return radio(p, 'r', 'Catégorie de risque', [['ts', 'Très élevé, prévention secondaire'], ['tp', 'Très élevé, prévention primaire'], ['e', 'Élevé'], ['m', 'Modéré'], ['f', 'Faible']]) +
+        '<div class="c-grid">' + num(p, 'ldl', 'LDL non traité', 'mmol/L', 'step="0.1" min="0" max="20"') + '</div>';
+    },
+    calc: function (v) {
+      var x = n(v.ldl);
+      if (x === null) return out('', '—', 'Renseignez le LDL (1 mmol/L = 0,387 g/L).');
+      var r = v.r, res;
+      var obj = { ts: '< 1,4 mmol/L et baisse ≥ 50 %', tp: '< 1,4 mmol/L et baisse ≥ 50 %', e: '< 1,8 mmol/L et baisse ≥ 50 %', m: '< 2,6 mmol/L', f: '< 3,0 mmol/L' }[r];
+      if (r === 'ts') res = ['hi', 'Traitement médicamenteux', 'Prévention secondaire : hygiène de vie et hypolipémiant quel que soit le LDL.'];
+      else if (x >= 4.9 && (r === 'm' || r === 'f')) res = ['hi', 'Reclasser', 'Un LDL ≥ 4,9 mmol/L place au moins en risque élevé : traitement médicamenteux.'];
+      else if (r === 'tp') res = x >= 1.8 ? ['hi', 'Traitement recommandé (I A)', 'Hygiène de vie et hypolipémiant.'] : x >= 1.4 ? ['mid', 'Traitement à envisager (IIa A)', 'Hygiène de vie, ajouter un médicament.'] : ['mid', 'Hygiène de vie', 'Médicament envisageable.'];
+      else if (r === 'e') res = x >= 2.6 ? ['hi', 'Traitement recommandé (I A)', 'Hygiène de vie et hypolipémiant.'] : x >= 1.8 ? ['mid', 'Traitement à envisager (IIa A)', 'Si non contrôlé par l’hygiène de vie.'] : ['lo', 'Hygiène de vie', ''];
+      else if (r === 'm') res = x >= 2.6 ? ['mid', 'Traitement à envisager (IIa A)', 'Si non contrôlé par l’hygiène de vie.'] : ['lo', 'Hygiène de vie', ''];
+      else res = x >= 3.0 ? ['mid', 'Traitement à envisager (IIa A)', 'Si non contrôlé par l’hygiène de vie.'] : ['lo', 'Hygiène de vie', ''];
+      return out(res[0], res[1], res[2] + ' Objectif de LDL (repère 2019) : ' + obj + '.') +
+        '<p class="c-n">LDL ' + fmt(x, 1) + ' mmol/L ≈ ' + fmt(x * 0.387, 2) + ' g/L. Tableau 4 et recommandations de la mise à jour 2025 ; catégories de risque dans le chapitre Essentiel.</p>';
+    }
+  };
+
+  C.kdigo = {
+    title: 'Maladie rénale chronique : débit (CKD-EPI 2021), stade et risque',
+    form: function (p) {
+      return '<div class="c-grid">' + num(p, 'age', 'Âge', 'ans', 'min="18" max="110"') + num(p, 'cr', 'Créatinine', 'µmol/L', 'min="20" max="2000"') +
+        num(p, 'acr', 'Albumine/créatinine urinaire', 'mg/mmol', 'step="0.1" min="0" max="2000"') + '</div>' + sexe(p);
+    },
+    calc: function (v) {
+      var age = n(v.age), cr = n(v.cr), acr = n(v.acr);
+      if (age === null || cr === null) return out('', '—', 'Renseignez l’âge et la créatinine.');
+      var g = ckdepi(age, cr, v.sexe), G = g >= 90 ? 'G1' : g >= 60 ? 'G2' : g >= 45 ? 'G3a' : g >= 30 ? 'G3b' : g >= 15 ? 'G4' : 'G5';
+      var A = acr === null ? null : acr < 3 ? 'A1' : acr <= 30 ? 'A2' : 'A3';
+      var gi = ['G1', 'G2', 'G3a', 'G3b', 'G4', 'G5'].indexOf(G), ai = A ? ['A1', 'A2', 'A3'].indexOf(A) : -1;
+      var M = [[0, 1, 2], [0, 1, 2], [1, 2, 3], [2, 3, 3], [3, 3, 3], [3, 3, 3]];
+      var rk = ai < 0 ? null : M[gi][ai], RK = ['Pas de maladie rénale si aucun autre marqueur', 'Risque rénal modéré', 'Risque rénal élevé', 'Risque rénal très élevé'];
+      var cv = '';
+      if (g < 30 || A === 'A3' || (G === 'G3b' && A === 'A2')) cv = 'Risque cardiovasculaire très élevé (I B).';
+      else if ((G === 'G3b' && A === 'A1') || (G === 'G3a' && A === 'A2')) cv = 'Risque cardiovasculaire élevé en l’absence d’autre facteur majeur (I B).';
+      var lvl = rk === null ? (g < 30 ? 'hi' : g < 60 ? 'mid' : 'lo') : ['lo', 'mid', 'hi', 'hi'][rk];
+      var t = (rk === null ? 'Ajoutez l’albuminurie pour classer le risque.' : RK[rk] + '.') + (cv ? ' ' + cv : '');
+      var ttt = [];
+      if (g >= 20 && (A === 'A2' || A === 'A3')) ttt.push('inhibiteur du SGLT2 si diabète de type 2, ou sans diabète si albuminurie ≥ 20 mg/mmol (I A)');
+      if (g < 60) ttt.push('statine sans dialyse quel que soit le LDL (I A)');
+      if (g >= 30) ttt.push('systolique 120–129 mmHg si tolérée (I A)');
+      return out(lvl, fmt(g, 0) + ' <small>mL/min/1,73 m² · ' + G + (A ? ' ' + A : '') + '</small>', t) +
+        (ttt.length ? '<p class="c-n">Pistes selon les recommandations 2026 : ' + ttt.join(' ; ') + '. La maladie rénale chronique exige deux mesures à au moins 3 mois d’intervalle.</p>' : '<p class="c-n">La maladie rénale chronique exige deux mesures à au moins 3 mois d’intervalle.</p>');
+    }
+  };
+
   C['duke-esc'] = {
     title: 'Critères diagnostiques de l’endocardite (2023)',
     form: function (p) {
@@ -1136,6 +1186,7 @@ window.initApp = function (D) {
   var CALC_GROUPS = [
     ['Rythmologie', ['cha2ds2va', 'hasbled', 'aod']],
     ['Maladie coronaire', ['rfcl', 'grace-lien', 'archbr', 'doses-sca']],
+    ['Prévention et lipides', ['ldl-strategie']],
     ['Insuffisance cardiaque et péricarde', ['h2fpef', 'scai', 'peri-doses']],
     ['Valves et endocardite', ['surface-ao', 'inr-valve', 'duke-esc']],
     ['Embolie pulmonaire', ['geneve', 'wells', 'pesi', 'ep-risque']],
@@ -1143,7 +1194,7 @@ window.initApp = function (D) {
     ['Artères et aorte', ['ips', 'add-rs']],
     ['Rythmologie héréditaire et cardiomyopathies', ['qtc', 'schwartz', 'shanghai', 'hcmrisk', 'taskforce', 'amylose']],
     ['Chirurgie et grossesse', ['rcri', 'carpreg']],
-    ['Rein', ['cockcroft']]
+    ['Rein', ['kdigo', 'cockcroft']]
   ];
   var CLS = { I: 'Classe I : recommandé, indiqué', IIa: 'Classe IIa : doit être envisagé', IIb: 'Classe IIb : peut être envisagé', III: 'Classe III : non recommandé (inutile ou dangereux)' };
   var LVL = { A: 'Niveau A : plusieurs essais randomisés ou méta-analyse (en 2026 : preuve concluante, en général au moins deux essais puissants)',

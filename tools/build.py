@@ -17,7 +17,8 @@ En-tête YAML simplifié entre deux lignes « --- » (clé: valeur).
   > I A | texte                      recommandation (classe I, IIa, IIb, III ; niveau A, B, B1, B2, C)
   :::cles Titre … :::               points clés      :::nouveau Titre … :::  nouveautés
   :::attention Titre … :::          mise en garde    :::pratique Titre … :::  en pratique
-  :::algo Titre                      étapes « Étiquette | texte » … :::
+  :::algo Titre                      étapes « Étiquette | texte » ou « 1. **Étiquette** : texte »,
+                                     branches indentées « - **Oui** : texte » (côte à côte), « → issue » … :::
   :::details Titre … :::            bloc repliable
   | a | b |  (tableau markdown, ligne de séparation obligatoire)
   - puce / 1. liste numérotée
@@ -190,51 +191,91 @@ def table(rows, where):
     return f'<div class="tbl"><table><thead><tr>{h}</tr></thead><tbody>{b}</tbody></table></div>'
 
 
+def _algo_label(txt):
+    """Sépare une étiquette en tête : « **Étiquette** : texte », « Étiquette | texte »."""
+    mb = re.match(r"\*\*(.+?)\*\*\s*[:→]\s*(.*)", txt)
+    if mb and mb.group(2):
+        return mb.group(1), mb.group(2)
+    if "|" in txt and not txt.startswith("**"):
+        k, _, v = txt.partition("|")
+        return k.strip(), v.strip()
+    return "", txt
+
+
 def render_algo(t, inner, where):
-    """Algorithme : étapes « Étiquette | texte », liste numérotée « 1. … » (étiquette = début en gras
-    ou partie avant « → »), sous-puces « - … » rattachées à l’étape précédente, tableaux markdown et
-    paragraphes de note acceptés."""
-    items = []          # ("st", label, text, [subs]) | ("raw", [lines])
+    """Algorithme ou arbre décisionnel.
+    Étape : « Étiquette | texte », « 1. **Étiquette** : texte » ou « 1. texte » (étiquette = partie avant « → »),
+            « - texte » ; « → texte » = issue (encadré final).
+    Branche (ligne indentée de 2 espaces, sous l’étape) : « - **Oui** : texte » ou « Oui | texte » ;
+            les branches d’une même étape s’affichent côte à côte.
+    Sous-point d’une branche : ligne indentée de 4 espaces ou plus.
+    Tableau markdown et paragraphe libre (note) acceptés."""
+    items = []          # ("st", label, text, cls, [[blabel, btext, [subs]]]) | ("raw", [lines]) | ("note", txt)
     for l in inner:
         if not l.strip():
             continue
         st = l.strip()
+        ind = len(l) - len(l.lstrip(" \t"))
         if st.startswith("|"):
             if items and items[-1][0] == "raw":
                 items[-1][1].append(st)
             else:
                 items.append(("raw", [st]))
             continue
-        if st.startswith("- ") and items and items[-1][0] == "st" and l[:1] in (" ", "\t"):
-            items[-1][3].append(st[2:])
+        if ind >= 2 and items and items[-1][0] == "st":
+            body = st[2:] if st.startswith("- ") else st
+            brs = items[-1][4]
+            if ind >= 4 and brs:
+                brs[-1][2].append(body)
+            else:
+                lab, txt = _algo_label(body)
+                brs.append([lab, txt, []])
+            continue
+        if st.startswith("→ "):
+            lab, txt = _algo_label(st[2:])
+            items.append(("st", lab, txt, "out", []))
             continue
         m = re.match(r"(\d+)\.\s+(.*)", st)
         if m:
             n, txt = m.groups()
-            mb = re.match(r"\*\*(.+?)\*\*\s*[:→]\s*(.*)", txt)
-            if mb and mb.group(2):
-                lab, txt = mb.group(1), mb.group(2)
+            lab, txt2 = _algo_label(txt) if txt.startswith("**") else ("", txt)
+            if lab:
+                txt = txt2
             elif " → " in txt and len(txt.split(" → ", 1)[0]) <= 70:
                 lab, txt = txt.split(" → ", 1)
             else:
                 lab = f"Étape {n}"
-            items.append(("st", lab, txt, []))
+            items.append(("st", lab, txt, "", []))
             continue
         if st.startswith("- "):
-            items.append(("st", "", st[2:], []))
+            lab, txt = _algo_label(st[2:])
+            items.append(("st", lab, txt, "", []))
             continue
         if "|" in st and not st.startswith("**"):
-            k, _, v = st.partition("|")
-            items.append(("st", k.strip(), v.strip(), []))
+            lab, txt = _algo_label(st)
+            items.append(("st", lab, txt, "", []))
             continue
         items.append(("note", st))
     out = []
     for it in items:
         if it[0] == "st":
-            sub = "".join(f"<li>{inline(x)}</li>" for x in it[3])
-            sub = f"<ul>{sub}</ul>" if sub else ""
-            lab = f"<b class=\"lab\">{inline(it[1])}</b>" if it[1] else ""
-            out.append(f'<div class="st">{lab}{inline(it[2])}{sub}</div>')
+            _, label, txt, cls, brs = it
+            lab = f'<b class="lab">{inline(label)}</b>' if label else ""
+            bh = ""
+            if brs:
+                cells = []
+                longest = max(len(bt) + sum(len(x) for x in subs) for _, bt, subs in brs)
+                ncol = 1 if longest > 110 else min(len(brs), 3)
+                for bl, bt, subs in brs:
+                    sub = "".join(f"<li>{inline(x)}</li>" for x in subs)
+                    sub = f"<ul>{sub}</ul>" if sub else ""
+                    blh = f'<b class="bl">{inline(bl)}</b>' if bl else ""
+                    low = re.sub(r"<[^>]+>", "", bl).strip().lower()
+                    yc = ' class="yes"' if low.startswith("oui") else (' class="no"' if low.startswith("non") else "")
+                    cells.append(f'<div{yc}>{blh}{inline(bt)}{sub}</div>')
+                bh = f'<div class="br n{ncol}">{"".join(cells)}</div>'
+            c = f"st {cls}".strip()
+            out.append(f'<div class="{c}">{lab}{inline(txt)}{bh}</div>')
         elif it[0] == "raw":
             out.append(f'<div class="st tb">{render_blocks(it[1], where)}</div>')
         else:

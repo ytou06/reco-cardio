@@ -151,14 +151,24 @@ b,strong{font-weight:600}
 .box.warn{background:var(--warn-bg)} .box.warn h3{color:var(--warn)}
 .box.upd{background:var(--upd-bg)} .box.upd h3{color:var(--upd)}
 .box.prat{background:var(--prat-bg)} .box.prat h3{color:var(--prat)}
-.flow{display:grid; gap:8px}
-.flow .st{background:var(--sheet); border:1px solid var(--line); border-left:4px solid var(--fc); border-radius:10px; padding:10px 12px; font-size:.95rem}
+.flow{display:grid; gap:16px}
+.flow .st{position:relative; background:var(--sheet); border:1px solid var(--line); border-left:4px solid var(--fc); border-radius:10px; padding:10px 12px; font-size:.95rem}
+.flow > .st + .st::before, .flow > .an + .st::before{content:""; position:absolute; left:50%; top:-14px; width:2px; height:10px; background:var(--fc); opacity:.55; transform:translateX(-50%)}
+.flow > .st + .st::after, .flow > .an + .st::after{content:""; position:absolute; left:50%; top:-6px; transform:translateX(-50%); border:5px solid transparent; border-top-color:var(--fc); opacity:.55}
 .flow .st b.lab{display:block; color:var(--fc); font-size:.9rem}
+.flow .st.out{border:1px solid var(--fc); border-left-width:4px; background:var(--soft); font-weight:500}
 .flow .st ul{margin:.35rem 0 0; padding-left:1.1rem}
 .flow .st li{margin:.15rem 0}
+.flow .br{display:grid; gap:8px; margin-top:10px}
+.flow .br.n2{grid-template-columns:1fr 1fr}
+.flow .br.n3{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.flow .br > div{background:var(--soft); border-radius:8px; padding:8px 10px; font-size:.92rem; border-top:3px solid var(--fc)}
+.flow .br b.bl{display:block; color:var(--fc); font-size:.85rem}
+.flow .br > div.yes{border-top-color:#2E9D63} .flow .br > div.yes b.bl{color:#2E9D63}
+.flow .br > div.no{border-top-color:#C8553D} .flow .br > div.no b.bl{color:#C8553D}
 .flow .st.tb{border-left-width:1px; padding:6px; overflow-x:auto}
 .flow .st.tb table{margin:0}
-.flow .an{margin:.25rem 0 0; font-size:.92rem; color:var(--muted)}
+.flow .an{margin:0; font-size:.92rem; color:var(--muted)}
 .tbl{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--sheet)}
 table{border-collapse:collapse; width:100%; font-size:.88rem}
 .tbl table{min-width:440px}

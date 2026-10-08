@@ -153,7 +153,12 @@ b,strong{font-weight:600}
 .box.prat{background:var(--prat-bg)} .box.prat h3{color:var(--prat)}
 .flow{display:grid; gap:8px}
 .flow .st{background:var(--sheet); border:1px solid var(--line); border-left:4px solid var(--fc); border-radius:10px; padding:10px 12px; font-size:.95rem}
-.flow .st b{display:block; color:var(--fc); font-size:.9rem}
+.flow .st b.lab{display:block; color:var(--fc); font-size:.9rem}
+.flow .st ul{margin:.35rem 0 0; padding-left:1.1rem}
+.flow .st li{margin:.15rem 0}
+.flow .st.tb{border-left-width:1px; padding:6px; overflow-x:auto}
+.flow .st.tb table{margin:0}
+.flow .an{margin:.25rem 0 0; font-size:.92rem; color:var(--muted)}
 .tbl{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--sheet)}
 table{border-collapse:collapse; width:100%; font-size:.88rem}
 .tbl table{min-width:440px}
@@ -1255,7 +1260,7 @@ window.initApp = function (D) {
         var g = x.id && G[x.id];
         if (g) {
           var qs = qcount(g.id), seen = qs.filter(function (q) { return srs[q.id]; }).length, nrec = g.ch.reduce(function (a, c) { return a + c.n; }, 0);
-          h += '<li><a class="row" href="#g-' + g.id + '"><span><strong>' + esc(g.t) + '</strong><span class="sub">' + g.y + ' · ' + plural(g.ch.length, 'chapitre') + ' · ' + nrec + ' recommandations · ' + plural(qs.length, 'question') + '</span>' +
+          h += '<li><a class="row" href="#g-' + g.id + '"><span><strong>' + esc(g.t) + '</strong><span class="sub">' + g.y + ' · ' + plural(g.ch.length, 'chapitre') + ' · ' + (nrec ? nrec + ' recommandations' : 'sans classes') + ' · ' + plural(qs.length, 'question') + '</span>' +
             (qs.length ? '<span class="prog"><i style="width:' + Math.round(seen / qs.length * 100) + '%"></i></span>' : '') + '</span><span class="chev">›</span></a></li>';
         } else {
           h += '<li><div class="row soon"><span><strong>' + esc(x.t) + '</strong><span class="sub">' + x.y + ' · à venir</span></span><span></span></div></li>';

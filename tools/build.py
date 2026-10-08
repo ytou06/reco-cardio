@@ -190,6 +190,58 @@ def table(rows, where):
     return f'<div class="tbl"><table><thead><tr>{h}</tr></thead><tbody>{b}</tbody></table></div>'
 
 
+def render_algo(t, inner, where):
+    """Algorithme : étapes « Étiquette | texte », liste numérotée « 1. … » (étiquette = début en gras
+    ou partie avant « → »), sous-puces « - … » rattachées à l’étape précédente, tableaux markdown et
+    paragraphes de note acceptés."""
+    items = []          # ("st", label, text, [subs]) | ("raw", [lines])
+    for l in inner:
+        if not l.strip():
+            continue
+        st = l.strip()
+        if st.startswith("|"):
+            if items and items[-1][0] == "raw":
+                items[-1][1].append(st)
+            else:
+                items.append(("raw", [st]))
+            continue
+        if st.startswith("- ") and items and items[-1][0] == "st" and l[:1] in (" ", "\t"):
+            items[-1][3].append(st[2:])
+            continue
+        m = re.match(r"(\d+)\.\s+(.*)", st)
+        if m:
+            n, txt = m.groups()
+            mb = re.match(r"\*\*(.+?)\*\*\s*[:→]\s*(.*)", txt)
+            if mb and mb.group(2):
+                lab, txt = mb.group(1), mb.group(2)
+            elif " → " in txt and len(txt.split(" → ", 1)[0]) <= 70:
+                lab, txt = txt.split(" → ", 1)
+            else:
+                lab = f"Étape {n}"
+            items.append(("st", lab, txt, []))
+            continue
+        if st.startswith("- "):
+            items.append(("st", "", st[2:], []))
+            continue
+        if "|" in st and not st.startswith("**"):
+            k, _, v = st.partition("|")
+            items.append(("st", k.strip(), v.strip(), []))
+            continue
+        items.append(("note", st))
+    out = []
+    for it in items:
+        if it[0] == "st":
+            sub = "".join(f"<li>{inline(x)}</li>" for x in it[3])
+            sub = f"<ul>{sub}</ul>" if sub else ""
+            lab = f"<b class=\"lab\">{inline(it[1])}</b>" if it[1] else ""
+            out.append(f'<div class="st">{lab}{inline(it[2])}{sub}</div>')
+        elif it[0] == "raw":
+            out.append(f'<div class="st tb">{render_blocks(it[1], where)}</div>')
+        else:
+            out.append(f'<p class="an">{inline(it[1])}</p>')
+    return f'<div class="blk-algo">{t}<div class="flow">{"".join(out)}</div></div>'
+
+
 def render_box(kind, title, inner, where):
     t = f"<h3>{inline(title)}</h3>" if title else ""
     if kind == "cles":
@@ -198,13 +250,7 @@ def render_box(kind, title, inner, where):
         cls = {"nouveau": "upd", "attention": "warn", "pratique": "prat"}[kind]
         return f'<div class="box {cls}">{t}{render_blocks(inner, where)}</div>'
     if kind == "algo":
-        steps = []
-        for l in inner:
-            if not l.strip():
-                continue
-            k, _, v = l.strip().partition("|")
-            steps.append(f'<div class="st"><b>{inline(k.strip())}</b>{inline(v.strip())}</div>')
-        return f'<div class="blk-algo">{t}<div class="flow">{"".join(steps)}</div></div>'
+        return render_algo(t, inner, where)
     if kind == "details":
         return f"<details><summary>{inline(title)}</summary><div>{render_blocks(inner, where)}</div></details>"
     ERR.append(f"{where}: type de bloc inconnu {kind}")

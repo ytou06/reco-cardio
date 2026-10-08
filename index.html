@@ -189,6 +189,45 @@ details > div{padding:0 16px 14px} details > div > * + *{margin-top:.6rem}
 .xref.soon::after{content:""}
 .pane a:not(.xref):not(.chip){color:var(--fc)}
 
+/* arbres décisionnels interactifs */
+.arbre{margin:1.2rem 0; padding:14px; border:1px solid var(--line); border-top:4px solid var(--fc); border-radius:14px; background:var(--sheet)}
+.arbre h3{margin:0 0 .7rem!important; font-family:var(--display); font-weight:400; font-size:1.3rem}
+.ar-tag{display:block; font:600 .68rem/1.4 var(--mono); text-transform:uppercase; letter-spacing:.08em; color:var(--fc); margin-bottom:2px}
+.ar-n{display:none}
+.ar-n.on{display:block; animation:arIn .18s ease-out}
+@keyframes arIn{from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:none}}
+.ar-q{margin:0 0 .7rem; font-size:1.02rem; line-height:1.5}
+.ar-n > p:not(.ar-q), .ar-r p:not(.ar-q){margin:0 0 .6rem; font-size:.92rem; color:var(--muted)}
+.ar-os{display:grid; gap:8px; grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.ar-o{display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:2px; min-height:48px; padding:10px 14px; border:1.5px solid var(--fc); border-radius:12px;
+  background:var(--soft); color:var(--ink); font:600 1rem/1.3 inherit; text-align:left; cursor:pointer}
+.ar-o:active{transform:scale(.98)}
+.ar-o small{display:none; font-weight:400; font-size:.8rem; color:var(--muted)}
+.ar-r.on{display:flex; gap:12px; align-items:flex-start; padding:12px; border-radius:12px; background:var(--ccb, var(--soft)); border-left:5px solid var(--cc, var(--fc))}
+.ar-r .ar-q{margin:0 0 .3rem; font-weight:500}
+.ar-c{flex:none; display:grid; place-items:center; min-width:44px; height:40px; border-radius:9px; background:var(--sheet); color:var(--cc); font:600 1rem var(--mono)}
+.ar-path{list-style:none; padding:0; margin:0 0 10px; display:grid; gap:2px}
+.ar-path:empty{display:none}
+.ar-path li{display:flex; justify-content:space-between; gap:10px; padding:4px 0; border-bottom:1px solid var(--line); font-size:.84rem; color:var(--muted)}
+.ar-path li b{flex:0 1 auto; max-width:48%; text-align:right; color:var(--fc)}
+.ar-ctl{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+.ar-ctl button{border:1px solid var(--line); background:transparent; border-radius:999px; padding:7px 13px; font-size:.85rem; color:var(--ink); cursor:pointer}
+.ar-ctl button:disabled{opacity:.4; cursor:default}
+.ar-ctl .ar-all[aria-pressed="true"]{background:var(--fc); border-color:var(--fc); color:#fff}
+.arbre.all .ar-n{display:block; margin-top:12px; padding-top:12px; border-top:1px dashed var(--line); animation:none}
+.arbre.all .ar-n:first-child{margin-top:0; padding-top:0; border-top:0}
+.arbre.all .ar-r{display:flex; gap:12px; padding:12px; border-radius:12px; background:var(--ccb, var(--soft)); border-left:5px solid var(--cc, var(--fc))}
+.arbre.all .ar-o small{display:block}
+.arbre.all .ar-path{display:none}
+
+.arbre.flash{box-shadow:0 0 0 3px var(--fc); transition:box-shadow .3s}
+.sect-sub{margin:-.3rem 0 .8rem; color:var(--muted); font-size:.9rem}
+.ar-grp{margin:0 0 8px; border:1px solid var(--line); border-radius:12px; background:var(--sheet); overflow:hidden}
+.ar-grp > summary{padding:12px 14px; cursor:pointer; font-weight:600; list-style:none; display:flex; justify-content:space-between; align-items:center}
+.ar-grp > summary::-webkit-details-marker{display:none}
+.ar-grp > summary small{font:500 .8rem var(--mono); color:var(--muted)}
+.ar-grp .rows{margin:0; border-radius:0; border:0; border-top:1px solid var(--line)}
+
 /* recommandations et classes */
 .recos{display:grid; gap:6px}
 .reco{display:grid; grid-template-columns:48px minmax(0,1fr); gap:12px; align-items:start; padding:10px 12px 10px 10px; border-radius:12px;
@@ -1176,6 +1215,30 @@ body.locked .bar, body.locked .tabbar{display:none}
   }
   window.CALCS = C;
   window.mountCalcs = function (root) { (root || document).querySelectorAll('.calc[data-calc]').forEach(mount); };
+  /* arbres décisionnels interactifs : navigation déléguée */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('.arbre'); if (!a) return;
+    var h = a._h || (a._h = []);
+    function x(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function show(id) {
+      a.querySelectorAll('.ar-n').forEach(function (n) { n.classList.toggle('on', n.dataset.id === id); });
+      a.querySelector('.ar-back').disabled = !h.length; a.querySelector('.ar-reset').disabled = !h.length;
+      a.querySelector('.ar-path').innerHTML = h.map(function (s) { return '<li><span>' + x(s.q) + '</span><b>' + x(s.a) + '</b></li>'; }).join('');
+      var r = a.getBoundingClientRect(); if (r.top < 60) a.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+    var o = e.target.closest('.ar-o');
+    if (o) {
+      var n = o.closest('.ar-n');
+      if (a.classList.contains('all')) { a.classList.remove('all'); a.querySelector('.ar-all').setAttribute('aria-pressed', 'false'); h.length = 0; }
+      h.push({ id: n.dataset.id, q: n.dataset.q, a: o.querySelector('span').textContent });
+      show(o.dataset.go); return;
+    }
+    if (e.target.closest('.ar-back')) { var s = h.pop(); if (s) show(s.id); return; }
+    if (e.target.closest('.ar-reset')) { h.length = 0; show(a.dataset.start); return; }
+    var all = e.target.closest('.ar-all');
+    if (all) { var on = !a.classList.contains('all'); a.classList.toggle('all', on); all.setAttribute('aria-pressed', String(on)); }
+  });
+
 })();
 
 /* ===================================================================
@@ -1427,9 +1490,20 @@ window.initApp = function (D) {
   }
 
   // ---------- outils ----------
+  function arbresList() {
+    var A = D.a || []; if (!A.length) return '';
+    var by = {}, ord = [];
+    A.forEach(function (a) { if (!by[a.g]) { by[a.g] = []; ord.push(a.g); } by[a.g].push(a); });
+    return '<h2 class="sect">Arbres décisionnels interactifs</h2><p class="sect-sub">Répondez aux questions pas à pas jusqu’à la conduite recommandée.</p>' +
+      ord.map(function (g) {
+        return '<details class="ar-grp"><summary>' + esc(G[g] ? G[g].t : g) + ' <small>' + by[g].length + '</small></summary><ul class="rows" style="--gc:var(--accent)">' + by[g].map(function (a) {
+          return '<li><a class="row" href="#g-' + a.g + '--' + a.c + '--' + a.id + '"><span><strong>' + esc(a.t) + '</strong></span><span class="chev">›</span></a></li>';
+        }).join('') + '</ul></details>';
+      }).join('');
+  }
   function renderTools() {
     var h = '<div class="col"><div class="head"><h1>Outils</h1><p>Guides pratiques, posologies et calculateurs. Rien n’est enregistré.</p></div>' +
-      '<h2 class="sect">Guides pratiques</h2><ul class="rows" style="--gc:var(--accent)">' + D.o.map(function (o) {
+      arbresList() + '<h2 class="sect">Guides pratiques</h2><ul class="rows" style="--gc:var(--accent)">' + D.o.map(function (o) {
         return '<li><a class="row" href="#outil-' + o.id + '"><span><strong>' + esc(o.t) + '</strong><span class="sub">' + esc(o.r || '') + '</span></span><span class="chev">›</span></a></li>';
       }).join('') + '</ul>';
     CALC_GROUPS.forEach(function (gr) {
@@ -1676,6 +1750,7 @@ window.initApp = function (D) {
         showView('doc', kind === 'outil' && listView === 'tools' ? 'tools' : undefined);
         var term = lastTerm; lastTerm = '';
         openPane(parts[1], term);
+        if (parts[2]) setTimeout(function () { var el = document.getElementById(parts[2]); if (el) { el.scrollIntoView({ block: 'start' }); window.scrollBy(0, -70); el.classList.add('flash'); setTimeout(function () { el.classList.remove('flash'); }, 1600); } }, 60);
         return;
       }
     }

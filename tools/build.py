@@ -20,6 +20,8 @@ En-tête YAML simplifié entre deux lignes « --- » (clé: valeur).
   :::algo Titre                      étapes « Étiquette | texte » ou « 1. **Étiquette** : texte »,
                                      branches indentées « - **Oui** : texte » (côte à côte), « → issue » … :::
   :::details Titre … :::            bloc repliable
+  :::arbre Titre                     arbre interactif : « ? id | question », options « - Réponse > id »,
+                                     conclusions « ! id | IIa | texte » … :::
   | a | b |  (tableau markdown, ligne de séparation obligatoire)
   - puce / 1. liste numérotée
   @calc id                           calculateur intégré
@@ -283,6 +285,108 @@ def render_algo(t, inner, where):
     return f'<div class="blk-algo">{t}<div class="flow">{"".join(out)}</div></div>'
 
 
+ARBRE_CLS = {"I", "IIa", "IIb", "III"}
+ARBRES = []
+
+
+def render_arbre(title, inner, where):
+    """Arbre décisionnel interactif.
+    ? id | question                      nœud question (le premier nœud est le départ)
+    - Réponse > id_cible                 option (bouton) du nœud précédent
+    ! id | [I|IIa|IIb|III |] conclusion  nœud final (classe facultative)
+    lignes indentées                     texte complémentaire du nœud ; « @calc id » insère un calculateur."""
+    nodes, order = {}, []
+    cur = None
+    for l in inner:
+        s = l.strip()
+        if not s:
+            continue
+        m = re.match(r"([?!])\s*([\w-]+)\s*\|\s*(.*)", s)
+        if m and not l[:1].isspace():
+            kind, nid, txt = m.groups()
+            cls = ""
+            if kind == "!":
+                a, sep, b = txt.partition("|")
+                if sep and a.strip() in ARBRE_CLS:
+                    cls, txt = a.strip(), b.strip()
+            if nid in nodes:
+                ERR.append(f"{where}: arbre « {title} » : nœud {nid} en double")
+            cur = {"k": kind, "t": txt, "cls": cls, "opts": [], "more": []}
+            nodes[nid] = cur; order.append(nid)
+            continue
+        mo = re.match(r"-\s+(.+?)\s*>\s*([\w-]+)\s*$", s)
+        if mo and cur is not None:
+            if cur["k"] == "!":
+                ERR.append(f"{where}: arbre « {title} » : option sous un nœud final")
+            cur["opts"].append((mo.group(1), mo.group(2)))
+            continue
+        if cur is None:
+            ERR.append(f"{where}: arbre « {title} » : ligne hors nœud : {s[:50]}")
+            continue
+        cur["more"].append(s)
+    if not order:
+        ERR.append(f"{where}: arbre « {title} » vide"); return ""
+    # contrôles
+    seen, stack = set(), [order[0]]
+    while stack:
+        n = stack.pop()
+        if n in seen or n not in nodes:
+            continue
+        seen.add(n)
+        stack += [t for _, t in nodes[n]["opts"]]
+    for nid, nd in nodes.items():
+        for lab, t in nd["opts"]:
+            if t not in nodes:
+                ERR.append(f"{where}: arbre « {title} » : cible inconnue {t} (depuis {nid})")
+        if nd["k"] == "?" and len(nd["opts"]) < 1:
+            ERR.append(f"{where}: arbre « {title} » : question {nid} sans réponse")
+        if nid not in seen:
+            ERR.append(f"{where}: arbre « {title} » : nœud {nid} inaccessible")
+
+    def plain(t, n=80):
+        t = re.sub(r"<[^>]+>", "", inline(t))
+        t = html.unescape(t)
+        return (t[: n - 1] + "…") if len(t) > n else t
+
+    def more_html(lines):
+        h = ""
+        for x in lines:
+            if x.startswith("@calc "):
+                h += f'<div class="calc" data-calc="{x[6:].strip()}"></div>'
+            else:
+                h += "<p>" + inline(x) + "</p>"
+        return h
+
+    out = []
+    for i, nid in enumerate(order):
+        nd = nodes[nid]
+        on = " on" if i == 0 else ""
+        if nd["k"] == "?":
+            btns = "".join(
+                f'<button type="button" class="ar-o" data-go="{t}"><span>{inline(lab)}</span><small>→ {html.escape(plain(nodes[t]["t"], 70)) if t in nodes else ""}</small></button>'
+                for lab, t in nd["opts"])
+            full = plain(nd["t"], 10000)
+            parts = [x for x in re.split(r"(?<=[.!)])\s+(?=[A-ZÀ-ÝÉ«*])", full) if "?" in x]
+            qtxt = parts[-1] if parts else full
+            qtxt = (qtxt[:89] + "…") if len(qtxt) > 90 else qtxt
+            out.append(f'<div class="ar-n{on}" data-id="{nid}" data-q="{html.escape(qtxt)}">'
+                       f'<p class="ar-q">{inline(nd["t"])}</p>{more_html(nd["more"])}<div class="ar-os">{btns}</div></div>')
+        else:
+            c = nd["cls"]
+            badge = f'<span class="ar-c">{c}</span>' if c else ""
+            cc = f" c-{c}" if c else ""
+            out.append(f'<div class="ar-n ar-r{cc}{on}" data-id="{nid}">{badge}<div><p class="ar-q">{inline(nd["t"])}</p>{more_html(nd["more"])}</div></div>')
+    ctl = ('<div class="ar-ctl"><button type="button" class="ar-back" disabled>← Retour</button>'
+           '<button type="button" class="ar-reset" disabled>Recommencer</button>'
+           '<button type="button" class="ar-all" aria-pressed="false">Tout l’arbre</button></div>')
+    gid, _, chid = where.partition("#")
+    gid = gid[:-3] if gid.endswith(".md") else gid
+    aid = f"ar-{gid}-{sum(1 for a in ARBRES if a['g'] == gid) + 1}"
+    ARBRES.append({"g": gid, "c": chid, "t": plain(title, 140), "id": aid})
+    return (f'<div class="arbre" id="{aid}" data-start="{order[0]}"><h3><span class="ar-tag">Arbre interactif</span>{inline(title)}</h3>'
+            f'<ol class="ar-path"></ol><div class="ar-ns">{"".join(out)}</div>{ctl}</div>')
+
+
 def render_box(kind, title, inner, where):
     t = f"<h3>{inline(title)}</h3>" if title else ""
     if kind == "cles":
@@ -292,6 +396,8 @@ def render_box(kind, title, inner, where):
         return f'<div class="box {cls}">{t}{render_blocks(inner, where)}</div>'
     if kind == "algo":
         return render_algo(t, inner, where)
+    if kind == "arbre":
+        return render_arbre(title, inner, where)
     if kind == "details":
         return f"<details><summary>{inline(title)}</summary><div>{render_blocks(inner, where)}</div></details>"
     ERR.append(f"{where}: type de bloc inconnu {kind}")
@@ -470,7 +576,7 @@ def main():
         t = (href.split("--", 1) + [""])[:2]
         if t[0] not in allg or (t[1] and t[1] not in valid.get(t[0], set())):
             ERR.append(f"lien vers un chapitre inconnu : {t}")
-    data = {"cat": cat, "g": guides, "o": outils, "q": qs, "built": os.environ.get("BUILD_DATE", "")}
+    data = {"cat": cat, "g": guides, "o": outils, "q": qs, "a": ARBRES, "built": os.environ.get("BUILD_DATE", "")}
     os.makedirs(os.path.join(ROOT, "build"), exist_ok=True)
     with open(os.path.join(ROOT, "build", "contenu.json"), "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, separators=(",", ":"))

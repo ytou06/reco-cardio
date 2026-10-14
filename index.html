@@ -228,6 +228,20 @@ details > div{padding:0 16px 14px} details > div > * + *{margin-top:.6rem}
 .ar-grp > summary small{font:500 .8rem var(--mono); color:var(--muted)}
 .ar-grp .rows{margin:0; border-radius:0; border:0; border-top:1px solid var(--line)}
 
+/* figures (images chiffrées, chargées à la demande) */
+.fig{margin:16px 0}
+.fig-img{display:block;width:100%;padding:0;margin:0;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;cursor:zoom-in;-webkit-tap-highlight-color:transparent}
+.fig-img img{display:block;width:100%;height:auto}
+.fig-ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:90px;color:#5A6774;font-size:13px;background:var(--soft)}
+.fig figcaption{font-size:13.5px;line-height:1.45;color:var(--muted);margin-top:7px}
+#figzoom{position:fixed;inset:0;z-index:2000;background:rgba(8,12,16,.97);overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#figzoom[hidden]{display:none}
+#figzoom .fz-in{min-height:100%;display:flex;align-items:center;justify-content:flex-start;padding:56px 0 24px}
+#figzoom img{display:block;width:100vw;max-width:none;height:auto;background:#fff;cursor:zoom-in;margin:0 auto}
+#figzoom.z img{width:260vw;cursor:zoom-out}
+#figzoom .fz-x{position:fixed;top:calc(env(safe-area-inset-top) + 10px);right:12px;z-index:2001;width:40px;height:40px;border-radius:20px;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:22px;line-height:40px;text-align:center}
+#figzoom .fz-h{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 10px);text-align:center;color:rgba(255,255,255,.7);font-size:12px;pointer-events:none}
+
 /* recommandations et classes */
 .recos{display:grid; gap:6px}
 .reco{display:grid; grid-template-columns:48px minmax(0,1fr); gap:12px; align-items:start; padding:10px 12px 10px 10px; border-radius:12px;
@@ -1215,6 +1229,43 @@ body.locked .bar, body.locked .tabbar{display:none}
   }
   window.CALCS = C;
   window.mountCalcs = function (root) { (root || document).querySelectorAll('.calc[data-calc]').forEach(mount); };
+  /* figures : fichiers data/img/<id>.bin = iv (12 octets) + image chiffrée avec la même clé que le contenu */
+  var FIGS = {}, figObs = null;
+  function figLoad(el) {
+    el.setAttribute('data-done', '1');
+    var id = el.getAttribute('data-img');
+    var p = FIGS[id] ? Promise.resolve(FIGS[id]) : fetch('data/img/' + id + '.bin').then(function (r) { if (!r.ok) throw new Error('img'); return r.arrayBuffer(); })
+      .then(function (buf) { return crypto.subtle.decrypt({ name: 'AES-GCM', iv: new Uint8Array(buf, 0, 12) }, window.RC_KEY, new Uint8Array(buf, 12)); })
+      .then(function (plain) { var u = URL.createObjectURL(new Blob([plain], { type: 'image/webp' })); FIGS[id] = u; return u; });
+    p.then(function (u) { el.innerHTML = '<img alt="Figure" src="' + u + '">'; el.style.aspectRatio = ''; })
+      .catch(function () { el.removeAttribute('data-done'); var ph = el.querySelector('.fig-ph'); if (ph) ph.textContent = 'Figure indisponible (connexion ?) — touchez pour réessayer'; });
+  }
+  window.loadFigs = function (root) {
+    var els = (root || document).querySelectorAll('.fig-img[data-img]:not([data-done])');
+    if (!els.length || !window.RC_KEY) return;
+    if (!('IntersectionObserver' in window)) { els.forEach(figLoad); return; }
+    if (!figObs) figObs = new IntersectionObserver(function (ents) { ents.forEach(function (e) { if (e.isIntersecting) { figObs.unobserve(e.target); figLoad(e.target); } }); }, { rootMargin: '600px 0px' });
+    els.forEach(function (el) { figObs.observe(el); });
+  };
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.fig-img');
+    if (!b) return;
+    var img = b.querySelector('img');
+    if (!img) { if (!b.hasAttribute('data-done')) figLoad(b); return; }
+    var z = document.getElementById('figzoom');
+    if (!z) {
+      z = document.createElement('div'); z.id = 'figzoom'; z.hidden = true;
+      z.innerHTML = '<button class="fz-x" type="button" aria-label="Fermer">×</button><div class="fz-in"><img alt="Figure agrandie"></div><div class="fz-h">Touchez l’image pour zoomer, faites glisser pour la parcourir</div>';
+      document.body.appendChild(z);
+      z.querySelector('.fz-x').addEventListener('click', function () { z.hidden = true; z.classList.remove('z'); });
+      z.querySelector('img').addEventListener('click', function (ev) {
+        var on = !z.classList.contains('z'), r = ev.target.getBoundingClientRect(), fx = (ev.clientX - r.left) / r.width, fy = (ev.clientY - r.top) / r.height;
+        z.classList.toggle('z', on);
+        if (on) { var im = ev.target; z.scrollLeft = fx * im.offsetWidth - innerWidth / 2; z.scrollTop = fy * im.offsetHeight + im.offsetTop - innerHeight / 2; }
+      });
+    }
+    z.querySelector('img').src = img.src; z.classList.remove('z'); z.hidden = false; z.scrollTop = 0; z.scrollLeft = 0;
+  });
   /* arbres décisionnels interactifs : navigation déléguée */
   document.addEventListener('click', function (e) {
     var a = e.target.closest('.arbre'); if (!a) return;
@@ -1412,6 +1463,7 @@ window.initApp = function (D) {
     pane.innerHTML = h;
     pane.style.animation = 'none'; void pane.offsetHeight; pane.style.animation = '';
     window.mountCalcs(pane);
+    window.loadFigs(pane);
     var tb = $('#t-train'); if (tb) tb.addEventListener('click', function () { trainOn(doc.id, c.id); });
     $$('.ptab', views.doc).forEach(function (t) {
       var on = t.dataset.c === c.id; t.setAttribute('aria-selected', String(on));
@@ -1801,6 +1853,7 @@ window.initApp = function (D) {
     if (!pw || !DATA) return;
     btn.disabled = true; btn.textContent = 'Ouverture…';
     derive(pw, DATA.kdf).then(function (key) {
+      window.RC_KEY = key;
       return decrypt(key).then(function (txt) {
         return crypto.subtle.exportKey('raw', key).then(function (raw) { lsSet({ salt: DATA.kdf.salt, k: b64e(raw) }); mount(txt); });
       });
@@ -1814,7 +1867,7 @@ window.initApp = function (D) {
     DATA = d;
     var st = lsGet();
     if (!st || st.salt !== d.kdf.salt) return showLock();
-    return crypto.subtle.importKey('raw', b64d(st.k), { name: 'AES-GCM' }, true, ['decrypt']).then(decrypt).then(mount).catch(function () { showLock(); });
+    return crypto.subtle.importKey('raw', b64d(st.k), { name: 'AES-GCM' }, true, ['decrypt']).then(function (k) { window.RC_KEY = k; return decrypt(k); }).then(mount).catch(function () { showLock(); });
   }).catch(function () { showLock('Impossible de charger le contenu. Vérifiez la connexion et rouvrez l’appli.'); });
 })();
 </script>

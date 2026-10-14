@@ -27,6 +27,7 @@ En-tête YAML simplifié entre deux lignes « --- » (clé: valeur).
   @calc id                           calculateur intégré
   @outil id | texte                  lien vers une fiche de l'onglet Outils
   @lien texte | url                  lien externe
+  @image fichier.webp | légende      figure (src/images/), chiffrée à part dans data/img/ (tools/crypt.py images)
 Mise en forme : **gras**, *italique*, `valeur` (chiffre mis en évidence), [texte](url).
 
 Format des questions
@@ -162,6 +163,8 @@ def render_blocks(lines, where):
             target, _, txt = s[6:].partition("|")
             out.append(f'<a class="xref" href="#g-{target.strip()}">{inline(txt.strip())}</a>')
             i += 1; continue
+        if s.startswith("@image "):
+            flush(); out.append(render_image(s[7:], where)); i += 1; continue
         if s.startswith("@lien "):
             flush()
             txt, _, url = s[6:].partition("|")
@@ -171,6 +174,35 @@ def render_blocks(lines, where):
         i += 1
     flush()
     return "\n".join(out)
+
+
+IMAGES = {}
+
+
+def render_image(spec, where):
+    """@image fichier.webp | légende : l'image est publiée chiffrée sous un nom haché (data/img/<id>.bin)."""
+    import hashlib
+    fn, _, cap = spec.partition("|")
+    fn = fn.strip()
+    path = os.path.join(ROOT, "src", "images", fn)
+    if not os.path.exists(path):
+        ERR.append(f"{where}: image absente {fn}")
+        return ""
+    raw = open(path, "rb").read()
+    iid = hashlib.sha256(raw).hexdigest()[:20]
+    IMAGES[iid] = fn
+    w = h = 0
+    try:
+        from PIL import Image
+        with Image.open(path) as im:
+            w, h = im.size
+    except Exception:
+        pass
+    ratio = f' style="aspect-ratio:{w}/{h}"' if w and h else ""
+    cap = cap.strip()
+    return (f'<figure class="fig"><button type="button" class="fig-img" data-img="{iid}"{ratio} aria-label="Agrandir la figure">'
+            f'<span class="fig-ph">Chargement de la figure…</span></button>'
+            + (f"<figcaption>{inline(cap)}</figcaption>" if cap else "") + "</figure>")
 
 
 def reco(s, where):
@@ -584,6 +616,8 @@ def main():
     kinds = {k: sum(1 for q in qs if q["k"] == k) for k in ("qi", "kfp", "dp")}
     print(f"{len(guides)} recommandations, {sum(len(g['ch']) for g in guides)} chapitres, {n_rec} recommandations classées, "
           f"{len(outils)} fiches outils, questions {kinds}", file=sys.stderr)
+    with open(os.path.join(ROOT, "build", "images.json"), "w", encoding="utf-8") as f:
+        json.dump(IMAGES, f, ensure_ascii=False, indent=0)
     if ERR:
         print("\n".join("ERREUR " + e for e in ERR), file=sys.stderr)
         sys.exit(1)

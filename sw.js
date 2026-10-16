@@ -1,5 +1,5 @@
 // Service worker : l'appli fonctionne hors ligne et se met à jour en arrière-plan.
-const CACHE = 'recos-cardio-2026-10-14b';
+const CACHE = 'recos-cardio-2026-10-16a';
 const IMG = 'recos-cardio-figures';  // figures chiffrées : nom haché, donc immuables, cache conservé d'une version à l'autre
 const SHELL = ['./', './index.html', './data/content.json', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', e => {

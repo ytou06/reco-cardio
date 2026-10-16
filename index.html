@@ -1208,6 +1208,114 @@ body.locked .bar, body.locked .tabbar{display:none}
   };
 
 
+  C.hfaicos = {
+    title: 'Score HFA-ICOS (risque de toxicité cardiovasculaire avant traitement du cancer)',
+    // niveaux par classe : A anthracyclines, H anti-HER2, V anti-VEGF, B inhibiteurs de BCR-ABL, M myélome, R inhibiteurs de RAF et MEK
+    F: [
+      ['Antécédents cardiovasculaires'],
+      ['ic', 'Insuffisance cardiaque, cardiomyopathie ou dysfonction cardiaque liée à un traitement du cancer', 'VH VH VH H VH VH'],
+      ['vhd', 'Valvulopathie sévère', 'H H - - - H'],
+      ['idm', 'Infarctus, angioplastie coronaire ou pontage', 'H H VH - - H'],
+      ['ang', 'Angor stable', 'H H VH - - H'],
+      ['art', 'Maladie artérielle (coronaire, cérébrovasculaire ou périphérique)', '- - VH VH VH -'],
+      ['ips', 'Index de pression systolique cheville-bras anormal', '- - - H - -'],
+      ['htp', 'Hypertension pulmonaire', '- - - H - -'],
+      ['tki', 'Thrombose artérielle sous inhibiteur de tyrosine kinase', '- - - VH - -'],
+      ['tv', 'Thrombose veineuse profonde ou embolie pulmonaire', '- - H M2 VH -'],
+      ['arr', 'Arythmie (fibrillation ou flutter atrial, tachycardie ou fibrillation ventriculaire)', '- M2 M2 M2 M2 M1'],
+      ['qt1', 'QTc ≥ 480 ms', '- - H H - -'],
+      ['qt2', 'QTc 450–479 ms (homme) ou 460–479 ms (femme)', '- - M2 M2 - -'],
+      ['pi', 'Toxicité cardiovasculaire antérieure d’un inhibiteur du protéasome', '- - - - VH -'],
+      ['imid', 'Toxicité cardiovasculaire antérieure d’un immunomodulateur', '- - - - H -'],
+      ['Imagerie et biomarqueurs'],
+      ['fe1', 'Fraction d’éjection < 50 %', 'H H H H H H'],
+      ['fe2', 'Fraction d’éjection 50–54 %', 'M2 M2 M2 - M2 M2'],
+      ['hvg', 'Hypertrophie ventriculaire gauche', '- - - - M1 -'],
+      ['amy', 'Amylose cardiaque', '- - - - VH -'],
+      ['tn', 'Troponine de base au-dessus de la normale', 'M1 M2 M1 - M2 M2'],
+      ['np', 'Peptides natriurétiques de base au-dessus de la normale', 'M1 M2 M1 - H M2'],
+      ['Facteurs de risque'],
+      ['sc', 'Risque cardiovasculaire à 10 ans > 20 %', '- - - H - -'],
+      ['hta', 'Hypertension (pression > 140/90 mmHg ou traitée)', 'M1 M1 H M2 M1 M2'],
+      ['mrc', 'Maladie rénale chronique (débit < 60 mL/min/1,73 m²)', 'M1 M1 M1 M1 M1 M1'],
+      ['prot', 'Protéinurie', '- - M1 - - -'],
+      ['db', 'Diabète (hémoglobine glyquée > 7 % ou traité)', 'M1 M1 M1 M1 M1 M1'],
+      ['lip', 'Hyperlipidémie (cholestérol non-HDL > 3,8 mmol/L ou traité)', '- - M1 M1 M1 -'],
+      ['thr', 'Histoire familiale de thrombophilie', '- - - M1 M1 -'],
+      ['tab', 'Tabagisme actuel ou passé important', 'M1 M1 M1 H M1 M1'],
+      ['ob', 'Obésité (indice de masse corporelle > 30 kg/m²)', 'M1 M1 M1 M1 M1 M1'],
+      ['Traitements du cancer'],
+      ['dexa', 'Dexaméthasone > 160 mg par mois dans le protocole actuel', '- - - - M1 -'],
+      ['seq', 'Protocole actuel avec anthracycline avant l’anti-HER2', '- M1 - - - -'],
+      ['conc', 'Anthracycline et trastuzumab administrés simultanément', '- H - - - -'],
+      ['pa', 'Exposition antérieure à une anthracycline', 'H M2 H - H H'],
+      ['pt', 'Exposition antérieure au trastuzumab', '- VH - - - -'],
+      ['rt', 'Radiothérapie antérieure du thorax gauche ou du médiastin', 'H M2 M1 - M1 M2'],
+      ['nac', 'Chimiothérapie antérieure non anthracyclinique', 'M1 - - - - -']
+    ],
+    K: 'AHVBMR',
+    form: function (p) {
+      var self = this;
+      var h = radio(p, 'cls', 'Traitement prévu', [['A', 'Anthracyclines'], ['H', 'Anti-HER2'], ['V', 'Inhibiteurs du VEGF'], ['B', 'Inhibiteurs de BCR-ABL'], ['M', 'Traitements du myélome'], ['R', 'Inhibiteurs de RAF et MEK']]) +
+        '<div class="c-grid">' + num(p, 'age', 'Âge', 'ans') + '</div>';
+      var open = false;
+      self.F.forEach(function (f) {
+        if (f.length === 1) { if (open) h += '</div>'; h += sub(f[0]) + '<div class="c-list">'; open = true; return; }
+        h += '<div data-hfa="' + f[0] + '">' + chk(p, f[0], f[1]) + '</div>';
+      });
+      return h + (open ? '</div>' : '');
+    },
+    lvl: function (f, k) { return f[2].split(' ')['AHVBMR'.indexOf(k)]; },
+    ageLvl: function (a, k) {
+      if (a === null) return '-';
+      if (k === 'A' || k === 'H') return a >= 80 ? 'H' : a >= 65 ? 'M2' : '-';
+      if (k === 'V' || k === 'M') return a >= 75 ? 'H' : a >= 65 ? 'M1' : '-';
+      if (k === 'B') return a >= 75 ? 'H' : a >= 65 ? 'M2' : a >= 60 ? 'M1' : '-';
+      return a >= 65 ? 'M1' : '-';
+    },
+    sync: function (form, v) {
+      var self = this, k = v.cls || 'A';
+      form.querySelectorAll('[data-hfa]').forEach(function (el) {
+        var f = self.F.filter(function (x) { return x[0] === el.dataset.hfa; })[0];
+        var l = self.lvl(f, k); el.hidden = l === '-';
+        var b = el.querySelector('b'); if (!b) { b = document.createElement('b'); el.querySelector('label').appendChild(b); }
+        b.textContent = l === 'VH' ? 'très élevé' : l === 'H' ? 'élevé' : l;
+      });
+      form.querySelectorAll('.c-list').forEach(function (l) {
+        var any = [].some.call(l.querySelectorAll('[data-hfa]'), function (el) { return !el.hidden; });
+        l.hidden = !any; var s = l.previousElementSibling; if (s && s.classList.contains('c-sub')) s.hidden = !any;
+      });
+    },
+    calc: function (v) {
+      var self = this, k = v.cls || 'A', vh = [], hi = [], pts = 0, mods = [];
+      var a = n(v.age), al = self.ageLvl(a, k);
+      var items = self.F.filter(function (f) { return f.length > 1 && v[f[0]]; }).map(function (f) { return [f[1], self.lvl(f, k)]; });
+      if (al !== '-') items.push(['Âge ' + fmt(a) + ' ans', al]);
+      items.forEach(function (it) {
+        if (it[1] === 'VH') vh.push(it[0]); else if (it[1] === 'H') hi.push(it[0]);
+        else if (it[1] === 'M1' || it[1] === 'M2') { pts += it[1] === 'M1' ? 1 : 2; mods.push(it[0] + ' (' + it[1] + ')'); }
+      });
+      var lev, txt;
+      if (vh.length) { lev = 'Très élevé'; txt = 'Au moins un facteur de risque très élevé.'; }
+      else if (hi.length || pts >= 5) { lev = 'Élevé'; txt = hi.length ? 'Au moins un facteur de risque élevé.' : 'Facteurs modérés totalisant ' + pts + ' points (≥ 5).'; }
+      else if (pts >= 2) { lev = 'Modéré'; txt = 'Facteurs modérés totalisant ' + pts + ' points (2 à 4).'; }
+      else { lev = 'Faible'; txt = pts ? 'Un seul facteur modéré M1.' : 'Aucun facteur de risque retenu pour ce traitement.'; }
+      var cls = lev === 'Faible' ? 'lo' : lev === 'Modéré' ? 'mid' : 'hi';
+      var conduite = {
+        'Faible': 'Traitement du cancer sans délai (I C) ; suivi oncologique habituel ; avis cardiologique si toxicité ou facteur de risque nouveau.',
+        'Modéré': 'Suivi rapproché et contrôle strict des facteurs de risque ; avis cardiologique envisageable (IIb C).',
+        'Élevé': 'Avis cardiologique avant le traitement (I C) et discussion pluridisciplinaire du rapport bénéfice-risque (I C) ; échocardiographie complète et biomarqueurs de base ; cardioprotection à envisager (inhibiteur de l’enzyme de conversion ou antagoniste de l’angiotensine II + bêtabloquant sous anthracyclines ou anti-HER2, IIa) ; statine (IIa).',
+        'Très élevé': 'Avis cardiologique avant le traitement (I C) et discussion pluridisciplinaire du rapport bénéfice-risque (I C) ; échocardiographie complète et biomarqueurs de base ; cardioprotection à envisager (inhibiteur de l’enzyme de conversion ou antagoniste de l’angiotensine II + bêtabloquant sous anthracyclines ou anti-HER2, IIa) ; statine (IIa).'
+      }[lev];
+      var det = '';
+      if (vh.length) det += '<p class="c-n"><b>Très élevé :</b> ' + vh.join(' ; ') + '</p>';
+      if (hi.length) det += '<p class="c-n"><b>Élevé :</b> ' + hi.join(' ; ') + '</p>';
+      if (mods.length) det += '<p class="c-n"><b>Modérés (' + pts + ' point' + (pts > 1 ? 's' : '') + ') :</b> ' + mods.join(' ; ') + '</p>';
+      return out(cls, lev, txt + ' ' + conduite) + det +
+        '<p class="c-n">M1 = 1 point, M2 = 2 points. Faible : aucun facteur ou un seul M1 ; modéré : 2 à 4 points ; élevé : ≥ 5 points ou un facteur élevé ; très élevé : un facteur très élevé (tableau 4, recommandations ESC 2022). Sous anthracyclines, une dose cumulée prévue ≥ 250 mg/m² d’équivalent doxorubicine augmente encore le risque.</p>';
+    }
+  };
+
   function mount(el) {
     var c = C[el.dataset.calc];
     if (!c || el.dataset.ready) return;
@@ -1221,6 +1329,7 @@ body.locked .bar, body.locked .tabbar{display:none}
       var first = tmp.firstElementChild;
       res.innerHTML = ''; if (first) res.appendChild(first);
       more.innerHTML = tmp.innerHTML; more.hidden = !tmp.innerHTML;
+      if (c.sync) c.sync(form, vals(form));
     }
     form.addEventListener('input', go);
     form.addEventListener('change', go);
@@ -1323,7 +1432,8 @@ window.initApp = function (D) {
     ['Artères et aorte', ['ips', 'add-rs']],
     ['Rythmologie héréditaire et cardiomyopathies', ['qtc', 'schwartz', 'shanghai', 'hcmrisk', 'taskforce', 'amylose']],
     ['Chirurgie et grossesse', ['rcri', 'carpreg']],
-    ['Rein', ['kdigo', 'cockcroft']]
+    ['Rein', ['kdigo', 'cockcroft']],
+    ['Cardio-oncologie', ['hfaicos']]
   ];
   var CLS = { I: 'Classe I : recommandé, indiqué', IIa: 'Classe IIa : doit être envisagé', IIb: 'Classe IIb : peut être envisagé', III: 'Classe III : non recommandé (inutile ou dangereux)' };
   var LVL = { A: 'Niveau A : plusieurs essais randomisés ou méta-analyse (en 2026 : preuve concluante, en général au moins deux essais puissants)',
